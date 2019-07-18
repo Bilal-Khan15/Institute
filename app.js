@@ -11,13 +11,16 @@ const port = process.env.PORT || 3000
 app.use(cors())
 
 
-function addResouce(Description, Grade, TeacherId, Title,video_url) {
+function addResouce(Title,Description, Grade, Subject ,TeacherId, author , file,video_url) {
 
     db.collection('Resources').add({
         Description,
         Grade,
         TeacherId,
+        Subject,
         Title,
+        author,
+        file,
         time: Date.now(),
         video_url
     })
@@ -41,7 +44,7 @@ function addResouce(Description, Grade, TeacherId, Title,video_url) {
 
 }
 
-addResouce('This math video tutorial provides a basic introduction into number systems. It explains how to interconvert between decimal, binary, octal, hexadecimal and BCD using successive division and multiplication of base powers.', '2nd year','oi54FJxirqWa4NfOK4RKPch6El23','Number System','https://www.youtube.com/watch?v=L2zsmYaI5ww')
+// addResouce('This math video tutorial provides a basic introduction into number systems. It explains how to interconvert between decimal, binary, octal, hexadecimal and BCD using successive division and multiplication of base powers.', '2nd year','oi54FJxirqWa4NfOK4RKPch6El23','Number System','https://www.youtube.com/watch?v=L2zsmYaI5ww')
  
 
 function signupParent(type, Name, NIC, Address, Phone, Email) {
@@ -125,7 +128,7 @@ app.post('/signup', (req, res) => {
 })
 
 app.post('/addResource', (req, res) => {
-    addResouce(req.body.Description, req.body.Grade, req.body.TeacherId, req.body.Title)
+    addResouce(req.body.Title,req.body.Description, req.body.Class, req.body.Subject ,req.body.TeacherId, req.body.Name, req.body.file, req.body.video_url )
 
     res.send({
         result: req.body.Title + ' has been added.'
