@@ -149,6 +149,20 @@ app.get('/library', (req, res) => {
     });
 })
 
+app.get('/library/myLibrary', (req, res) => {
+    db.collection('Resources').where('TeacherId', '==', req.query.id).get().then(snapshot => {
+        let data = []
+        snapshot.docs.forEach(doc => {
+            data.push(doc.data());
+        });
+
+        //data = JSON.stringify(data)
+        res.send({
+            Resources: data
+        })
+    });
+})
+
 app.post('/signin', async (req,res) => {
     if (req.body.type == 'Teachers') {
         let data;
