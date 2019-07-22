@@ -1,0 +1,109 @@
+var exports = module.exports = {},
+    constants = require('../utils/constant'),
+    userModel = require ('../models/user');
+
+const db = require('../models/user.js')
+    
+const addResource = (Title,Description, Grade, Subject ,TeacherId, author , file,video_url) => {e
+    try{
+        db.collection('Resources').add({
+            Description,
+            Grade,
+            TeacherId,
+            Subject,
+            Title,
+            author,
+            file,
+            time: Date.now(),
+            video_url
+        })
+        .then((doc)=>{
+            console.log('doc ===>', doc.id)
+            let ResourceID = doc.id
+            db.collection('Teachers').doc(TeacherId).get()
+            .then((res)=>{
+                let userData = res.data()
+                // let Resource = []
+                // Resource.push(ResourceID)
+                console.log('resources ===>',userData.Resources)
+                userData.Resources ? userData.Resources = [...userData.Resources, ResourceID] : userData.Resources =[ResourceID]
+                db.collection('Teachers').doc(TeacherId).set(userData)
+                .then(()=>console.log('added Resource'))
+                .catch((e)=>console.log(e))
+            })
+            .catch((e) => console.log(e))
+        })
+        .catch((e) => console.log(e))
+    } catch (e) {
+        console.log(e);
+        throw new Error(e)
+    }
+}
+
+// addResource('This math video tutorial provides a basic introduction into number systems. It explains how to interconvert between decimal, binary, octal, hexadecimal and BCD using successive division and multiplication of base powers.', '2nd year','oi54FJxirqWa4NfOK4RKPch6El23','Number System','https://www.youtube.com/watch?v=L2zsmYaI5ww')
+    
+
+const signupParent = (type, Name, NIC, Address, Phone, Email) => {
+    try{
+        db.collection(type).add({
+            type,
+            Name,
+            NIC,
+            Address,
+            Phone,
+            Email
+        })
+    } catch (e) {
+        console.log(e);
+        throw new Error(e)
+    }
+}
+
+const signupTeacher = (type, Name, NIC, Address, Phone, Email, Date, Month, Year,Uid) => {
+    try{
+        db.collection(type).doc(Uid).set({
+            type,
+            Name,
+            NIC,
+            Address,
+            Phone,
+            Email,
+            Date,
+            Month,
+            Year
+        })
+    } catch (e) {
+        console.log(e);
+        throw new Error(e)
+    }
+}
+
+const signupStudent = (type, Name, GuardianName, GuardianPhone, StudentPhone, School, Address, GuardianEmail, GuardianNIC, Date, Month, Year, StudentEmail) => {
+    try{
+        db.collection(type).add({
+            type,
+            Name,
+            GuardianName,
+            GuardianPhone,
+            StudentPhone,
+            School,
+            Address,
+            GuardianEmail,
+            GuardianNIC,
+            Date,
+            Month,
+            Year,
+            StudentEmail
+        })
+    } catch (e) {
+        console.log(e);
+        throw new Error(e)
+    }
+}
+
+module.exports = {
+    addResource: addResource,
+    signupParent: signupParent,
+    signupTeacher: signupTeacher,
+    signupStudent: signupStudent
+}
