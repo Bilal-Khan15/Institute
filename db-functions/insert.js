@@ -3,8 +3,9 @@ var exports = module.exports = {},
     userModel = require ('../models/user');
 
 const db = require('../models/user.js')
+var validator = require('validator');
     
-const addResource = (Title,Description, Grade, Subject ,TeacherId, author , file,video_url) => {e
+const addResource = (Title,Description, Grade, Subject ,TeacherId, author , file,video_url) => {
     try{
         db.collection('Resources').add({
             Description,
@@ -15,7 +16,8 @@ const addResource = (Title,Description, Grade, Subject ,TeacherId, author , file
             author,
             file,
             time: Date.now(),
-            video_url
+            video_url,
+            isArchive: false 
         })
         .then((doc)=>{
             console.log('doc ===>', doc.id)
@@ -40,12 +42,11 @@ const addResource = (Title,Description, Grade, Subject ,TeacherId, author , file
     }
 }
 
-// addResource('This math video tutorial provides a basic introduction into number systems. It explains how to interconvert between decimal, binary, octal, hexadecimal and BCD using successive division and multiplication of base powers.', '2nd year','oi54FJxirqWa4NfOK4RKPch6El23','Number System','https://www.youtube.com/watch?v=L2zsmYaI5ww')
-    
+// addResource('testtitle','This math video of base powers.', '2nd year','CS','oi54FJxirqWa4NfOK4RKPch6El23','testauthor','NS','https://www.youtube.com/watch?v=L2zsmYaI5ww')
 
-const signupParent = (type, Name, NIC, Address, Phone, Email) => {
+const signupParent = (type, Name, NIC, Address, Phone, Email, Uid) => {
     try{
-        db.collection(type).add({
+        db.collection(type).doc(Uid).set({
             type,
             Name,
             NIC,
@@ -78,9 +79,9 @@ const signupTeacher = (type, Name, NIC, Address, Phone, Email, Date, Month, Year
     }
 }
 
-const signupStudent = (type, Name, GuardianName, GuardianPhone, StudentPhone, School, Address, GuardianEmail, GuardianNIC, Date, Month, Year, StudentEmail) => {
+const signupStudent = (type, Name, GuardianName, GuardianPhone, StudentPhone, School, Address, GuardianEmail, GuardianNIC, Date, Month, Year, StudentEmail, Uid) => {
     try{
-        db.collection(type).add({
+        db.collection(type).doc(Uid).set({
             type,
             Name,
             GuardianName,
