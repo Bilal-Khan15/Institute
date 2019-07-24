@@ -84,8 +84,7 @@ app.post('/addResource', (req, res) => {
         || (req.body.Subject.trim() == '') 
         || (req.body.TeacherId.trim() == '') 
         || (req.body.Name.trim() == '') || (!validator.isLength(req.body.Name, min= 2, max= undefined)) 
-        || (req.body.file.trim() == '') 
-        || (req.body.video_url.trim() == '') || (!validator.isURL(req.body.video_url)))
+        || (!validator.isURL(req.body.video_url)))
     {
         return res.send({
             result: 'Please fill all the fields properly !'
@@ -186,8 +185,72 @@ app.get('/library', (req, res) => {
     });
 })
 
+app.get('/library/subject', (req, res) => {
+    db.collection('Resources').where('Subject', '==', req.query.Subject).get().then(snapshot => {
+        let data = []
+        snapshot.docs.forEach(doc => {
+            if(!doc.data().isArchive){
+                data.push(doc.data());
+            }
+        });
+
+        //data = JSON.stringify(data)
+        res.send({
+            Resources: data
+        })
+    });
+})
+
+app.get('/library/class', (req, res) => {
+    db.collection('Resources').where('Grade', '==', req.query.Class).get().then(snapshot => {
+        let data = []
+        snapshot.docs.forEach(doc => {
+            if(!doc.data().isArchive){
+                data.push(doc.data());
+            }
+        });
+
+        //data = JSON.stringify(data)
+        res.send({
+            Resources: data
+        })
+    });
+})
+
 app.get('/library/myLibrary', (req, res) => {
     db.collection('Resources').where('TeacherId', '==', req.query.id).get().then(snapshot => {
+        let data = []
+        snapshot.docs.forEach(doc => {
+            if(!doc.data().isArchive){
+                data.push(doc.data());
+            }
+        });
+
+        //data = JSON.stringify(data)
+        res.send({
+            Resources: data
+        })
+    });
+})
+
+app.get('/library/myLibrary/subject', (req, res) => {
+    db.collection('Resources').where('Subject', '==', req.query.Subject).where('TeacherId', '==', req.query.id).get().then(snapshot => {
+        let data = []
+        snapshot.docs.forEach(doc => {
+            if(!doc.data().isArchive){
+                data.push(doc.data());
+            }
+        });
+
+        //data = JSON.stringify(data)
+        res.send({
+            Resources: data
+        })
+    });
+})
+
+app.get('/library/myLibrary/class', (req, res) => {
+    db.collection('Resources').where('Grade', '==', req.query.Class).where('TeacherId', '==', req.query.id).get().then(snapshot => {
         let data = []
         snapshot.docs.forEach(doc => {
             if(!doc.data().isArchive){

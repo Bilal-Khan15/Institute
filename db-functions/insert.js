@@ -5,7 +5,7 @@ var exports = module.exports = {},
 const db = require('../models/user.js')
 var validator = require('validator');
     
-const addResource = (Title,Description, Grade, Subject ,TeacherId, author , file,video_url) => {
+const addResource = (Title,Description, Grade, Subject ,TeacherId, author , file='', video_url='') => {
     try{
         db.collection('Resources').add({
             Description,
@@ -17,9 +17,10 @@ const addResource = (Title,Description, Grade, Subject ,TeacherId, author , file
             file,
             time: Date.now(),
             video_url,
-            isArchive: false 
+            isArchive: false,
         })
         .then((doc)=>{
+            db.collection('Resources').doc(doc.id).set({Uid: doc.id}, {merge: true});
             console.log('doc ===>', doc.id)
             let ResourceID = doc.id
             db.collection('Teachers').doc(TeacherId).get()
@@ -52,7 +53,8 @@ const signupParent = (type, Name, NIC, Address, Phone, Email, Uid) => {
             NIC,
             Address,
             Phone,
-            Email
+            Email,
+            Uid
         })
     } catch (e) {
         console.log(e);
@@ -71,7 +73,8 @@ const signupTeacher = (type, Name, NIC, Address, Phone, Email, Date, Month, Year
             Email,
             Date,
             Month,
-            Year
+            Year,
+            Uid
         })
     } catch (e) {
         console.log(e);
@@ -94,7 +97,8 @@ const signupStudent = (type, Name, GuardianName, GuardianPhone, StudentPhone, Sc
             Date,
             Month,
             Year,
-            StudentEmail
+            StudentEmail,
+            Uid
         })
     } catch (e) {
         console.log(e);
