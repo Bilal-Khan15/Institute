@@ -24,6 +24,34 @@ const signinTeacher = (uid) => {
     }
 }
 
+signinStudent = (uid) => {
+    return new Promise((resolve, reject) => {
+        db.collection('Students').doc(uid).get()
+            .then((res) => {
+                let userData = res.data();
+                resolve(userData)
+            })
+            .catch((e) => {
+                const mess = e.message
+                reject({ message: mess })
+            })
+    })
+}
+
+signinParent = (uid) => {
+    return new Promise((resolve, reject) => {
+        db.collection('Parents').doc(uid).get()
+            .then((res) => {
+                let userData = res.data();
+                resolve(userData)
+            })
+            .catch((e) => {
+                const mess = e.message
+                reject({ message: mess })
+            })
+    })
+}
+
 module.exports = {
     signinTeacher: signinTeacher
 }

@@ -23,13 +23,14 @@ app.post('/signup', (req, res) => {
             || (req.body.NIC.trim() == '') || (!validator.isLength(req.body.NIC, min= 13, max= 16)) || (!validator.isNumeric(req.body.NIC))
             || (req.body.Address.trim() == '') || (!validator.isLength(req.body.Address, min= 5, max= 95)) 
             || (req.body.Phone.trim() == '') || (!validator.isNumeric(req.body.Phone)) || (!validator.isLength(req.body.Phone, min= 10, max= 15)) 
-            || (req.body.Email.trim() == '') || (!validator.isEmail(req.body.Email)) || (!validator.isLength(req.body.Email, min= 5, max= 320)))
+            || (req.body.Email.trim() == '') || (!validator.isEmail(req.body.Email)) || (!validator.isLength(req.body.Email, min= 5, max= 320))
+            || (req.body.Date.trim() == '') || (req.body.Month.trim() == '') || (req.body.Year.trim() == '') )
         {
             return res.send({
                 result: 'Please fill all the fields properly !'
             })
         }
-        insert.signupParent(req.body.type, req.body.Name, req.body.NIC, req.body.Address, req.body.Phone, req.body.Email, req.body.Uid)
+        insert.signupParent(req.body.type, req.body.Name, req.body.NIC, req.body.Address, req.body.Phone, req.body.Email, req.body.Date, req.body.Month, req.body.Year, req.body.Uid)
         res.send({
             result: req.body.Name + ' has been Addressed as ' + req.body.type
         })
@@ -266,12 +267,39 @@ app.get('/library/myLibrary/class', (req, res) => {
 })
 
 app.post('/signin', async (req,res) => {
+    console.log('body ===>',req.body)
+    console.log('type ===>', req.body.type)
     if (req.body.type == 'Teachers') {
         let data;
-        try{
-            data = await read.signinTeacher(req.body.uid)
+        try {
+            data = await signinTeacher(req.body.uid)
         }
-        catch(e){
+        catch (e) {
+            console.log(e)
+        }
+        res.send({
+            result: data
+        })
+    }
+    else if (req.body.type === 'Students') {
+        let data;
+        try {
+            data = await signinStudent(req.body.uid)
+            console.log('student data ==>',data)
+        }
+        catch (e) {
+            console.log(e)
+        }
+        res.send({
+            result: data
+        })
+    }
+    else if (req.body.type === 'Parents') {
+        let data;
+        try {
+            data = await signinParent(req.body.uid)
+        }
+        catch (e) {
             console.log(e)
         }
         res.send({

@@ -45,14 +45,17 @@ const addResource = (Title,Description, Grade, Subject ,TeacherId, author , file
 
 // addResource('testtitle','This math video of base powers.', '2nd year','CS','oi54FJxirqWa4NfOK4RKPch6El23','testauthor','NS','https://www.youtube.com/watch?v=L2zsmYaI5ww')
 
-const signupParent = (type, Name, NIC, Address, Phone, Email, Uid) => {
+const signupParent = (type, Name, NIC, Address, Phone, Email, Date, Month, Year, Uid) => {
     try{
         db.collection(type).doc(Uid).set({
             type,
             Name,
             NIC,
             Address,
-            Phone,
+            Phone, 
+            Date,
+            Month,
+            Year,
             Email,
             Uid
         })
