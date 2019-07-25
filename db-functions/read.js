@@ -53,5 +53,7 @@ signinParent = (uid) => {
 }
 
 module.exports = {
-    signinTeacher: signinTeacher
+    signinTeacher: signinTeacher,
+    signinStudent: signinStudent,
+    signinParent: signinParent
 }

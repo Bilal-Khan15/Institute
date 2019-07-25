@@ -266,6 +266,41 @@ app.get('/library/myLibrary/class', (req, res) => {
     });
 })
 
+app.post('/addtag', (req, res) => {
+    if((req.body.subject.trim() == '') && (req.body.class.trim() == ''))
+    {
+        return res.send({
+            result: 'Please fill all the fields properly !'
+        })
+    }
+
+    insert.addtag(req.body.subject, req.body.class)
+
+    res.send({
+        result: 'Tag has been added.'
+    })
+})
+
+app.get('/tags', (req, res) => {
+    db.collection('tags').doc('resources').get().then(snapshot => {
+        let sdata = []
+        let cdata = []
+        snapshot.data().subject.forEach(tag => {
+            sdata.push(tag);
+        });
+
+        snapshot.data().class.forEach(tag => {
+            cdata.push(tag);
+        });
+
+        //data = JSON.stringify(data)
+        res.send({
+            Subject: sdata,
+            Class: cdata
+        })
+    });
+})
+
 app.post('/signin', async (req,res) => {
     console.log('body ===>',req.body)
     console.log('type ===>', req.body.type)

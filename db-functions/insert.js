@@ -4,6 +4,7 @@ var exports = module.exports = {},
 
 const db = require('../models/user.js')
 var validator = require('validator');
+let admin = require('firebase-admin');
     
 const addResource = (Title,Description, Grade, Subject ,TeacherId, author , file='', video_url='') => {
     try{
@@ -37,6 +38,24 @@ const addResource = (Title,Description, Grade, Subject ,TeacherId, author , file
             .catch((e) => console.log(e))
         })
         .catch((e) => console.log(e))
+    } catch (e) {
+        console.log(e);
+        throw new Error(e)
+    }
+}
+    
+const addtag = (Subject, Class) => {
+    try{
+        if(!Subject == ''){
+            db.collection('tags').doc('resources').update({
+                subject: admin.firestore.FieldValue.arrayUnion(Subject)
+            })
+        }
+        if(!Class == ''){
+            db.collection('tags').doc('resources').update({
+                class: admin.firestore.FieldValue.arrayUnion(Class)
+            })
+        }
     } catch (e) {
         console.log(e);
         throw new Error(e)
@@ -111,6 +130,7 @@ const signupStudent = (type, Name, GuardianName, GuardianPhone, StudentPhone, Sc
 
 module.exports = {
     addResource: addResource,
+    addtag: addtag,
     signupParent: signupParent,
     signupTeacher: signupTeacher,
     signupStudent: signupStudent
