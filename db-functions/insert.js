@@ -6,7 +6,7 @@ const db = require('../models/user.js')
 var validator = require('validator');
 let admin = require('firebase-admin');
     
-const addResource = (Title,Description, Grade, Subject ,TeacherId, author , file='', video_url='') => {
+const addResource = (Title,Description, Grade, Subject ,TeacherId, author , file='', video_url='', tags='') => {
     try{
         db.collection('Resources').add({
             Description,
@@ -19,6 +19,7 @@ const addResource = (Title,Description, Grade, Subject ,TeacherId, author , file
             time: Date.now(),
             video_url,
             isArchive: false,
+            tags
         })
         .then((doc)=>{
             db.collection('Resources').doc(doc.id).set({Uid: doc.id}, {merge: true});

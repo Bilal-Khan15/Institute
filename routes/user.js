@@ -92,7 +92,7 @@ app.post('/addResource', (req, res) => {
         })
     }
 
-    insert.addResource(req.body.Title,req.body.Description, req.body.Class, req.body.Subject ,req.body.TeacherId, req.body.Name, req.body.file, req.body.video_url )
+    insert.addResource(req.body.Title,req.body.Description, req.body.Class, req.body.Subject ,req.body.TeacherId, req.body.Name, req.body.file, req.body.video_url, req.body.tags )
 
     res.send({
         result: req.body.Title + ' has been added.'
