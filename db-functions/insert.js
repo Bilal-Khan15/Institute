@@ -2,13 +2,13 @@ var exports = module.exports = {},
     constants = require('../utils/constant'),
     userModel = require ('../models/user');
 
-const db = require('../models/user.js')
+const user = require('../models/user.js')
 var validator = require('validator');
 let admin = require('firebase-admin');
     
 const addResource = (Title,Description, Grade, Subject ,TeacherId, author , file='', video_url='', tags='') => {
     try{
-        db.collection('Resources').add({
+        user.db.collection('Resources').add({
             Description,
             Grade,
             TeacherId,
@@ -22,17 +22,28 @@ const addResource = (Title,Description, Grade, Subject ,TeacherId, author , file
             tags
         })
         .then((doc)=>{
-            db.collection('Resources').doc(doc.id).set({Uid: doc.id}, {merge: true});
+            if(video_url == ''){
+                user.bucket.upload(file, {
+                    gzip: true,
+                    // destination: 'Bilal/' + file,
+                    metadata: {
+                      cacheControl: 'public, max-age=31536000',
+                    }
+                  }, function(err, file, apiResponse) {
+                      user.db.collection('Resources').doc(doc.id).set({video_url: apiResponse.mediaLink}, {merge: true});
+                  });
+                }
+            user.db.collection('Resources').doc(doc.id).set({Uid: doc.id}, {merge: true});
             console.log('doc ===>', doc.id)
             let ResourceID = doc.id
-            db.collection('Teachers').doc(TeacherId).get()
+            user.db.collection('Teachers').doc(TeacherId).get()
             .then((res)=>{
                 let userData = res.data()
                 // let Resource = []
                 // Resource.push(ResourceID)
                 console.log('resources ===>',userData.Resources)
                 userData.Resources ? userData.Resources = [...userData.Resources, ResourceID] : userData.Resources =[ResourceID]
-                db.collection('Teachers').doc(TeacherId).set(userData)
+                user.db.collection('Teachers').doc(TeacherId).set(userData)
                 .then(()=>console.log('added Resource'))
                 .catch((e)=>console.log(e))
             })
@@ -48,12 +59,12 @@ const addResource = (Title,Description, Grade, Subject ,TeacherId, author , file
 const addtag = (Subject, Class) => {
     try{
         if(!Subject == ''){
-            db.collection('tags').doc('resources').update({
+            user.db.collection('tags').doc('resources').update({
                 subject: admin.firestore.FieldValue.arrayUnion(Subject)
             })
         }
         if(!Class == ''){
-            db.collection('tags').doc('resources').update({
+            user.db.collection('tags').doc('resources').update({
                 class: admin.firestore.FieldValue.arrayUnion(Class)
             })
         }
@@ -67,7 +78,7 @@ const addtag = (Subject, Class) => {
 
 const signupParent = (type, Name, NIC, Address, Phone, Email, Date, Month, Year, Uid) => {
     try{
-        db.collection(type).doc(Uid).set({
+        user.db.collection(type).doc(Uid).set({
             type,
             Name,
             NIC,
@@ -87,7 +98,7 @@ const signupParent = (type, Name, NIC, Address, Phone, Email, Date, Month, Year,
 
 const signupTeacher = (type, Name, NIC, Address, Phone, Email, Date, Month, Year,Uid) => {
     try{
-        db.collection(type).doc(Uid).set({
+        user.db.collection(type).doc(Uid).set({
             type,
             Name,
             NIC,
@@ -107,7 +118,7 @@ const signupTeacher = (type, Name, NIC, Address, Phone, Email, Date, Month, Year
 
 const signupStudent = (type, Name, GuardianName, GuardianPhone, StudentPhone, School, Address, GuardianEmail, GuardianNIC, Date, Month, Year, StudentEmail, Uid) => {
     try{
-        db.collection(type).doc(Uid).set({
+        user.db.collection(type).doc(Uid).set({
             type,
             Name,
             GuardianName,

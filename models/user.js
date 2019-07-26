@@ -1,16 +1,37 @@
-var admin = require('firebase-admin');
-admin.initializeApp();
+var admin = require("firebase-admin");
+
+var serviceAccount = require("serviceAccountKey.json");
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "https://testing-31853.firebaseio.com",
+    storageBucket: "testing-31853.appspot.com"
+});
+
 const db = admin.firestore();
 
-module.exports = db
+var bucket = admin.storage().bucket();
 
-//const mongoose = require('mongoose');
-//
-//userSchema = new mongoose.Schema({
-//    name : String,
-//    team_name : String,
-//    email:  String,
-//    blockstack_id : String
-//});
-//
-//module.exports = mongoose.model("User", userSchema);
+module.exports = {
+    db: db,
+    bucket: bucket
+}
+
+
+
+
+
+// var admin = require('firebase-admin');
+// admin.initializeApp();
+// const db = admin.firestore();
+
+// module.exports = db
+
+
+
+// const start = async function() {
+//     const [metadata] = await bucket.file('app.js').getMetadata();
+//     console.log(`File: ${metadata.name}`);
+//     console.log(`Media link: ${metadata.mediaLink}`);
+// }
+// start()

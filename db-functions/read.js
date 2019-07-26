@@ -2,13 +2,13 @@ var exports = module.exports = {},
    utilsFunctions = require('../utils/functions'),
    constants = require('../utils/constant');
 
-const db = require('../models/user.js')
+const user = require('../models/user.js')
 
 const signinTeacher = (uid) => {
     try{
         return new Promise((resolve,reject)=>{
 
-            db.collection('Teachers').doc(uid).get()
+            user.db.collection('Teachers').doc(uid).get()
                 .then((res) => {
                     let userData = res.data();
                     resolve(userData)
@@ -26,7 +26,7 @@ const signinTeacher = (uid) => {
 
 signinStudent = (uid) => {
     return new Promise((resolve, reject) => {
-        db.collection('Students').doc(uid).get()
+        user.db.collection('Students').doc(uid).get()
             .then((res) => {
                 let userData = res.data();
                 resolve(userData)
@@ -40,7 +40,7 @@ signinStudent = (uid) => {
 
 signinParent = (uid) => {
     return new Promise((resolve, reject) => {
-        db.collection('Parents').doc(uid).get()
+        user.db.collection('Parents').doc(uid).get()
             .then((res) => {
                 let userData = res.data();
                 resolve(userData)

@@ -1,7 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 var cors = require('cors')
-const db = require('../models/user.js')
+const user = require('../models/user.js')
 var validator = require('validator');
 
 const app = express()
@@ -84,8 +84,7 @@ app.post('/addResource', (req, res) => {
         || (req.body.Class.trim() == '') 
         || (req.body.Subject.trim() == '') 
         || (req.body.TeacherId.trim() == '') 
-        || (req.body.Name.trim() == '') || (!validator.isLength(req.body.Name, min= 2, max= undefined)) 
-        || (!validator.isURL(req.body.video_url)))
+        || (req.body.Name.trim() == '') || (!validator.isLength(req.body.Name, min= 2, max= undefined)))
     {
         return res.send({
             result: 'Please fill all the fields properly !'
@@ -100,12 +99,12 @@ app.post('/addResource', (req, res) => {
 })
 
 app.post('/removeResource', (req, res) => {
-    db.collection('Resources').doc(req.body.uid).get().then((res) => {
+    user.db.collection('Resources').doc(req.body.uid).get().then((res) => {
         let data = res.data()            
 
         data.isArchive = true
 
-        db.collection('Resources').doc(req.body.uid).set(data)
+        user.db.collection('Resources').doc(req.body.uid).set(data)
     })
 
     res.send({
@@ -114,7 +113,7 @@ app.post('/removeResource', (req, res) => {
 })
 
 app.post('/updateResource', (req, res) => {
-    db.collection('Resources').doc(req.body.uid).get().then((res) => {
+    user.db.collection('Resources').doc(req.body.uid).get().then((res) => {
         let data = res.data()            
         console.log(data)
         if(req.body.Title)
@@ -162,7 +161,7 @@ app.post('/updateResource', (req, res) => {
             data.video_url = req.body.video_url
         }
 
-        db.collection('Resources').doc(req.body.uid).set(data)
+        user.db.collection('Resources').doc(req.body.uid).set(data)
     })
 
     res.send({
@@ -171,7 +170,7 @@ app.post('/updateResource', (req, res) => {
 })
 
 app.get('/library', (req, res) => {
-    db.collection('Resources').get().then(snapshot => {
+    user.db.collection('Resources').get().then(snapshot => {
         let data = []
         snapshot.docs.forEach(doc => {
             if(!doc.data().isArchive){
@@ -187,7 +186,7 @@ app.get('/library', (req, res) => {
 })
 
 app.get('/library/subject', (req, res) => {
-    db.collection('Resources').where('Subject', '==', req.query.Subject).get().then(snapshot => {
+    user.db.collection('Resources').where('Subject', '==', req.query.Subject).get().then(snapshot => {
         let data = []
         snapshot.docs.forEach(doc => {
             if(!doc.data().isArchive){
@@ -203,7 +202,7 @@ app.get('/library/subject', (req, res) => {
 })
 
 app.get('/library/class', (req, res) => {
-    db.collection('Resources').where('Grade', '==', req.query.Class).get().then(snapshot => {
+    user.db.collection('Resources').where('Grade', '==', req.query.Class).get().then(snapshot => {
         let data = []
         snapshot.docs.forEach(doc => {
             if(!doc.data().isArchive){
@@ -219,7 +218,7 @@ app.get('/library/class', (req, res) => {
 })
 
 app.get('/library/myLibrary', (req, res) => {
-    db.collection('Resources').where('TeacherId', '==', req.query.id).get().then(snapshot => {
+    user.db.collection('Resources').where('TeacherId', '==', req.query.id).get().then(snapshot => {
         let data = []
         snapshot.docs.forEach(doc => {
             if(!doc.data().isArchive){
@@ -235,7 +234,7 @@ app.get('/library/myLibrary', (req, res) => {
 })
 
 app.get('/library/myLibrary/subject', (req, res) => {
-    db.collection('Resources').where('Subject', '==', req.query.Subject).where('TeacherId', '==', req.query.id).get().then(snapshot => {
+    user.db.collection('Resources').where('Subject', '==', req.query.Subject).where('TeacherId', '==', req.query.id).get().then(snapshot => {
         let data = []
         snapshot.docs.forEach(doc => {
             if(!doc.data().isArchive){
@@ -251,7 +250,7 @@ app.get('/library/myLibrary/subject', (req, res) => {
 })
 
 app.get('/library/myLibrary/class', (req, res) => {
-    db.collection('Resources').where('Grade', '==', req.query.Class).where('TeacherId', '==', req.query.id).get().then(snapshot => {
+    user.db.collection('Resources').where('Grade', '==', req.query.Class).where('TeacherId', '==', req.query.id).get().then(snapshot => {
         let data = []
         snapshot.docs.forEach(doc => {
             if(!doc.data().isArchive){
@@ -282,7 +281,7 @@ app.post('/addtag', (req, res) => {
 })
 
 app.get('/tags', (req, res) => {
-    db.collection('tags').doc('resources').get().then(snapshot => {
+    user.db.collection('tags').doc('resources').get().then(snapshot => {
         let sdata = []
         let cdata = []
         snapshot.data().subject.forEach(tag => {
