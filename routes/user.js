@@ -42,14 +42,14 @@ app.post('/signup', (req, res) => {
             || (req.body.Address.trim() == '') || (!validator.isLength(req.body.Address, min= 5, max= 95)) 
             || (req.body.Phone.trim() == '') || (!validator.isNumeric(req.body.Phone)) || (!validator.isLength(req.body.Phone, min= 10, max= 15)) 
             || (req.body.Email.trim() == '') || (!validator.isEmail(req.body.Email))  || (!validator.isLength(req.body.Email, min= 5, max= 320))
-            || (req.body.Date.trim() == '') || (req.body.Month.trim() == '') || (req.body.Year.trim() == '') 
+            || (req.body.qualification.trim() == '')|| (req.body.Date.trim() == '') || (req.body.Month.trim() == '') || (req.body.Year.trim() == '') 
             || (req.body.Uid.trim() == ''))
         {
             return res.send({
                 result: 'Please fill all the fields properly !'
             })
         }
-        insert.signupTeacher(req.body.type, req.body.Name, req.body.NIC, req.body.Address, req.body.Phone, req.body.Email, req.body.Date, req.body.Month, req.body.Year, req.body.Uid)
+        insert.signupTeacher(req.body.type, req.body.Name, req.body.NIC, req.body.Address, req.body.Phone, req.body.Email, req.body.Date, req.body.Month, req.body.Year, req.body.Uid, req.body.qualification)
         res.send({
             result: req.body.Name + ' has been Addressed as ' + req.body.type
         })
@@ -185,24 +185,17 @@ app.get('/library', (req, res) => {
     });
 })
 
-app.get('/library/subject', (req, res) => {
-    user.db.collection('Resources').where('Subject', '==', req.query.Subject).get().then(snapshot => {
-        let data = []
-        snapshot.docs.forEach(doc => {
-            if(!doc.data().isArchive){
-                data.push(doc.data());
-            }
-        });
+app.get('/library/filter', (req, res) => {
+    var path = ''
+    if((req.query.Class) && (req.query.Subject)){
+        path = user.db.collection('Resources').where('Grade', '==', req.query.Class).where('Subject', '==', req.query.Subject)
+    }else if((req.query.Class) && (!req.query.Subject)){
+        path = user.db.collection('Resources').where('Grade', '==', req.query.Class)
+    }else if((!req.query.Class) && (req.query.Subject)){
+        path = user.db.collection('Resources').where('Subject', '==', req.query.Subject)
+    }
 
-        //data = JSON.stringify(data)
-        res.send({
-            Resources: data
-        })
-    });
-})
-
-app.get('/library/class', (req, res) => {
-    user.db.collection('Resources').where('Grade', '==', req.query.Class).get().then(snapshot => {
+    path.get().then(snapshot => {
         let data = []
         snapshot.docs.forEach(doc => {
             if(!doc.data().isArchive){
@@ -233,24 +226,17 @@ app.get('/library/myLibrary', (req, res) => {
     });
 })
 
-app.get('/library/myLibrary/subject', (req, res) => {
-    user.db.collection('Resources').where('Subject', '==', req.query.Subject).where('TeacherId', '==', req.query.id).get().then(snapshot => {
-        let data = []
-        snapshot.docs.forEach(doc => {
-            if(!doc.data().isArchive){
-                data.push(doc.data());
-            }
-        });
+app.get('/library/myLibrary/filter', (req, res) => {
+    var path = ''
+    if((req.query.Class) && (req.query.Subject)){
+        path = user.db.collection('Resources').where('Grade', '==', req.query.Class).where('Subject', '==', req.query.Subject)
+    }else if((req.query.Class) && (!req.query.Subject)){
+        path = user.db.collection('Resources').where('Grade', '==', req.query.Class)
+    }else if((!req.query.Class) && (req.query.Subject)){
+        path = user.db.collection('Resources').where('Subject', '==', req.query.Subject)
+    }
 
-        //data = JSON.stringify(data)
-        res.send({
-            Resources: data
-        })
-    });
-})
-
-app.get('/library/myLibrary/class', (req, res) => {
-    user.db.collection('Resources').where('Grade', '==', req.query.Class).where('TeacherId', '==', req.query.id).get().then(snapshot => {
+    path.where('TeacherId', '==', req.query.id).get().then(snapshot => {
         let data = []
         snapshot.docs.forEach(doc => {
             if(!doc.data().isArchive){
@@ -301,15 +287,18 @@ app.get('/tags', (req, res) => {
 })
 
 app.post('/signin', async (req,res) => {
-    console.log('body ===>',req.body)
-    console.log('type ===>', req.body.type)
     if (req.body.type == 'Teachers') {
         let data;
         try {
-            data = await signinTeacher(req.body.uid)
+            data = await read.signinTeacher(req.body.uid)
         }
         catch (e) {
             console.log(e)
+        }
+        if(data == undefined){
+            return res.send({
+                result: 'Record not found'
+            })
         }
         res.send({
             result: data
@@ -318,11 +307,16 @@ app.post('/signin', async (req,res) => {
     else if (req.body.type === 'Students') {
         let data;
         try {
-            data = await signinStudent(req.body.uid)
+            data = await read.signinStudent(req.body.uid)
             console.log('student data ==>',data)
         }
         catch (e) {
             console.log(e)
+        }
+        if(data == undefined){
+            return res.send({
+                result: 'Record not found'
+            })
         }
         res.send({
             result: data
@@ -331,10 +325,15 @@ app.post('/signin', async (req,res) => {
     else if (req.body.type === 'Parents') {
         let data;
         try {
-            data = await signinParent(req.body.uid)
+            data = await read.signinParent(req.body.uid)
         }
         catch (e) {
             console.log(e)
+        }
+        if(data == undefined){
+            return res.send({
+                result: 'Record not found'
+            })
         }
         res.send({
             result: data

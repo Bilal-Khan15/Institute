@@ -96,7 +96,7 @@ const signupParent = (type, Name, NIC, Address, Phone, Email, Date, Month, Year,
     }
 }
 
-const signupTeacher = (type, Name, NIC, Address, Phone, Email, Date, Month, Year,Uid) => {
+const signupTeacher = (type, Name, NIC, Address, Phone, Email, Date, Month, Year,Uid, qualification) => {
     try{
         user.db.collection(type).doc(Uid).set({
             type,
@@ -108,7 +108,8 @@ const signupTeacher = (type, Name, NIC, Address, Phone, Email, Date, Month, Year
             Date,
             Month,
             Year,
-            Uid
+            Uid,
+            qualification
         })
     } catch (e) {
         console.log(e);
