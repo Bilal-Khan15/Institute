@@ -8,7 +8,7 @@ const signinTeacher = (uid) => {
     try{
         return new Promise((resolve,reject)=>{
 
-            user.db.collection('Teachers').doc(uid).get()
+            user.db.collection('users').doc(uid).get()
                 .then((res) => {
                     let userData = res.data();
                     resolve(userData)
@@ -26,7 +26,7 @@ const signinTeacher = (uid) => {
 
 signinStudent = (uid) => {
     return new Promise((resolve, reject) => {
-        user.db.collection('Students').doc(uid).get()
+        user.db.collection('users').doc(uid).get()
             .then((res) => {
                 let userData = res.data();
                 resolve(userData)
@@ -40,7 +40,7 @@ signinStudent = (uid) => {
 
 signinParent = (uid) => {
     return new Promise((resolve, reject) => {
-        user.db.collection('Parents').doc(uid).get()
+        user.db.collection('users').doc(uid).get()
             .then((res) => {
                 let userData = res.data();
                 resolve(userData)

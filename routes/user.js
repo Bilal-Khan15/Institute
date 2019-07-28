@@ -17,94 +17,93 @@ let router = express.Router(),
    utilsFunction = require('../utils/functions');
 
 app.post('/signup', (req, res) => {
-    if (req.body.type == 'Parents') {
+    if (req.body.type == 'parent') {
         if((req.body.type.trim() == '')
-            || (req.body.Name.trim() == '') || (!validator.isLength(req.body.Name, min= 2, max= undefined))
-            || (req.body.NIC.trim() == '') || (!validator.isLength(req.body.NIC, min= 13, max= 16)) || (!validator.isNumeric(req.body.NIC))
-            || (req.body.Address.trim() == '') || (!validator.isLength(req.body.Address, min= 5, max= 95)) 
-            || (req.body.Phone.trim() == '') || (!validator.isNumeric(req.body.Phone)) || (!validator.isLength(req.body.Phone, min= 10, max= 15)) 
-            || (req.body.Email.trim() == '') || (!validator.isEmail(req.body.Email)) || (!validator.isLength(req.body.Email, min= 5, max= 320))
-            || (req.body.Date.trim() == '') || (req.body.Month.trim() == '') || (req.body.Year.trim() == '') )
+            || (req.body.name.trim() == '') || (!validator.isLength(req.body.name, min= 2, max= undefined))
+            || (req.body.nic.trim() == '') || (!validator.isLength(req.body.nic, min= 13, max= 16)) || (!validator.isNumeric(req.body.nic))
+            || (req.body.address.trim() == '') || (!validator.isLength(req.body.address, min= 5, max= 95)) 
+            || (req.body.phone.trim() == '') || (!validator.isNumeric(req.body.phone)) || (!validator.isLength(req.body.phone, min= 10, max= 15)) 
+            || (req.body.email.trim() == '') || (!validator.isEmail(req.body.email)) || (!validator.isLength(req.body.email, min= 5, max= 320))
+            || (req.body.date.trim() == '') || (req.body.month.trim() == '') || (req.body.year.trim() == '') )
         {
             return res.send({
                 result: 'Please fill all the fields properly !'
             })
         }
-        insert.signupParent(req.body.type, req.body.Name, req.body.NIC, req.body.Address, req.body.Phone, req.body.Email, req.body.Date, req.body.Month, req.body.Year, req.body.Uid)
+        insert.signupParent(req.body.type, req.body.name, req.body.nic, req.body.address, req.body.phone, req.body.email, req.body.date, req.body.month, req.body.year, req.body.id)
         res.send({
-            result: req.body.Name + ' has been Addressed as ' + req.body.type
+            result: req.body.name + ' has been addressed as ' + req.body.type
         })
     }
-    if (req.body.type == 'Teachers') {
+    if (req.body.type == 'teacher') {
         if((req.body.type.trim() == '') 
-            || (req.body.Name.trim() == '') || (!validator.isLength(req.body.Name, min= 2, max= undefined)) 
-            || (req.body.NIC.trim() == '') || (!validator.isLength(req.body.NIC, min= 13, max= 16)) || (!validator.isNumeric(req.body.NIC)) 
-            || (req.body.Address.trim() == '') || (!validator.isLength(req.body.Address, min= 5, max= 95)) 
-            || (req.body.Phone.trim() == '') || (!validator.isNumeric(req.body.Phone)) || (!validator.isLength(req.body.Phone, min= 10, max= 15)) 
-            || (req.body.Email.trim() == '') || (!validator.isEmail(req.body.Email))  || (!validator.isLength(req.body.Email, min= 5, max= 320))
-            || (req.body.qualification.trim() == '')|| (req.body.Date.trim() == '') || (req.body.Month.trim() == '') || (req.body.Year.trim() == '') 
-            || (req.body.Uid.trim() == ''))
+            || (req.body.name.trim() == '') || (!validator.isLength(req.body.name, min= 2, max= undefined)) 
+            || (req.body.nic.trim() == '') || (!validator.isLength(req.body.nic, min= 13, max= 16)) || (!validator.isNumeric(req.body.nic)) 
+            || (req.body.address.trim() == '') || (!validator.isLength(req.body.address, min= 5, max= 95)) 
+            || (req.body.phone.trim() == '') || (!validator.isNumeric(req.body.phone)) || (!validator.isLength(req.body.phone, min= 10, max= 15)) 
+            || (req.body.email.trim() == '') || (!validator.isEmail(req.body.email))  || (!validator.isLength(req.body.email, min= 5, max= 320))
+            || (req.body.qualification.trim() == '')|| (req.body.date.trim() == '') || (req.body.month.trim() == '') || (req.body.year.trim() == ''))
         {
             return res.send({
                 result: 'Please fill all the fields properly !'
             })
         }
-        insert.signupTeacher(req.body.type, req.body.Name, req.body.NIC, req.body.Address, req.body.Phone, req.body.Email, req.body.Date, req.body.Month, req.body.Year, req.body.Uid, req.body.qualification)
+        insert.signupTeacher(req.body.type, req.body.name, req.body.nic, req.body.address, req.body.phone, req.body.email, req.body.date, req.body.month, req.body.year, req.body.id, req.body.qualification)
         res.send({
-            result: req.body.Name + ' has been Addressed as ' + req.body.type
+            result: req.body.name + ' has been addressed as ' + req.body.type
         })
     }
-    if (req.body.type == 'Students') {
+    if (req.body.type == 'student') {
         if((req.body.type.trim() == '') 
-            || (req.body.Name.trim() == '') || (!validator.isLength(req.body.Name, min= 2, max= undefined))
-            || (req.body.GuardianName.trim() == '') || (!validator.isLength(req.body.GuardianName, min= 2, max= undefined)) 
-            || (req.body.GuardianPhone.trim() == '') || (!validator.isNumeric(req.body.GuardianPhone)) || (!validator.isLength(req.body.GuardianPhone, min= 10, max= 15)) 
-            || (req.body.StudentPhone.trim() == '') || (!validator.isNumeric(req.body.StudentPhone)) 
-            || (req.body.School.trim() == '') 
-            || (req.body.Address.trim() == '') || (!validator.isLength(req.body.Address, min= 5, max= 95)) 
-            || (req.body.GuardianEmail.trim() == '') || (!validator.isEmail(req.body.GuardianEmail)) || (!validator.isLength(req.body.GuardianEmail, min= 5, max= 320)) 
-            || (req.body.GuardianNIC.trim() == '') || (!validator.isLength(req.body.GuardianNIC, min= 13, max= 16)) || (!validator.isNumeric(req.body.GuardianNIC))
-            || (req.body.Date.trim() == '') || (req.body.Month.trim() == '') || (req.body.Year.trim() == '') 
-            || (req.body.StudentEmail.trim() == '') || (!validator.isEmail(req.body.StudentEmail)) || (!validator.isLength(req.body.StudentEmail, min= 5, max= 320)))
+            || (req.body.name.trim() == '') || (!validator.isLength(req.body.name, min= 2, max= undefined))
+            || (req.body.guardian_name.trim() == '') || (!validator.isLength(req.body.guardian_name, min= 2, max= undefined)) 
+            || (req.body.guardian_phone.trim() == '') || (!validator.isNumeric(req.body.guardian_phone)) || (!validator.isLength(req.body.guardian_phone, min= 10, max= 15)) 
+            || (req.body.student_phone.trim() == '') || (!validator.isNumeric(req.body.student_phone)) 
+            || (req.body.school.trim() == '') 
+            || (req.body.address.trim() == '') || (!validator.isLength(req.body.address, min= 5, max= 95)) 
+            || (req.body.guardian_email.trim() == '') || (!validator.isEmail(req.body.guardian_email)) || (!validator.isLength(req.body.guardian_email, min= 5, max= 320)) 
+            || (req.body.guardian_nic.trim() == '') || (!validator.isLength(req.body.guardian_nic, min= 13, max= 16)) || (!validator.isNumeric(req.body.guardian_nic))
+            || (req.body.date.trim() == '') || (req.body.month.trim() == '') || (req.body.year.trim() == '') 
+            || (req.body.student_email.trim() == '') || (!validator.isEmail(req.body.student_email)) || (!validator.isLength(req.body.student_email, min= 5, max= 320)))
         {
             return res.send({
                 result: 'Please fill all the fields properly !'
             })
         }
-        insert.signupStudent(req.body.type, req.body.Name, req.body.GuardianName, req.body.GuardianPhone, req.body.StudentPhone, req.body.School, req.body.Address, req.body.GuardianEmail, req.body.GuardianNIC, req.body.Date, req.body.Month, req.body.Year, req.body.StudentEmail, req.body.Uid)
+        insert.signupStudent(req.body.type, req.body.name, req.body.guardian_name, req.body.guardian_phone, req.body.student_phone, req.body.school, req.body.address, req.body.guardian_email, req.body.guardian_nic, req.body.date, req.body.month, req.body.year, req.body.student_email, req.body.id)
         res.send({
-            result: req.body.Name + ' has been Addressed as ' + req.body.type
+            result: req.body.name + ' has been addressed as ' + req.body.type
         })
     }
 })
 
 app.post('/addResource', (req, res) => {
-    if((req.body.Title.trim() == '') || (!validator.isLength(req.body.Title, min= 1, max= 60))  
-        || (req.body.Description.trim() == '') || (!validator.isLength(req.body.Description, min= 4, max= 160)) 
-        || (req.body.Class.trim() == '') 
-        || (req.body.Subject.trim() == '') 
-        || (req.body.TeacherId.trim() == '') 
-        || (req.body.Name.trim() == '') || (!validator.isLength(req.body.Name, min= 2, max= undefined)))
+    if((req.body.title.trim() == '') || (!validator.isLength(req.body.title, min= 1, max= 60))  
+        || (req.body.description.trim() == '') || (!validator.isLength(req.body.description, min= 4, max= 160)) 
+        || (req.body.grade.trim() == '') 
+        || (req.body.subject.trim() == '') 
+        || (req.body.teacher_id.trim() == '') 
+        || (req.body.name.trim() == '') || (!validator.isLength(req.body.name, min= 2, max= undefined)))
     {
         return res.send({
             result: 'Please fill all the fields properly !'
         })
     }
 
-    insert.addResource(req.body.Title,req.body.Description, req.body.Class, req.body.Subject ,req.body.TeacherId, req.body.Name, req.body.file, req.body.video_url, req.body.tags )
+    insert.addResource(req.body.title,req.body.description, req.body.grade, req.body.subject ,req.body.teacher_id, req.body.name, req.body.file, req.body.video_url, req.body.tags )
 
     res.send({
-        result: req.body.Title + ' has been added.'
+        result: req.body.title + ' has been added.'
     })
 })
 
 app.post('/removeResource', (req, res) => {
-    user.db.collection('Resources').doc(req.body.uid).get().then((res) => {
+    user.db.collection('resources').doc(req.body.id).get().then((res) => {
         let data = res.data()            
 
-        data.isArchive = true
+        data.is_archive = true
 
-        user.db.collection('Resources').doc(req.body.uid).set(data)
+        user.db.collection('resources').doc(req.body.id).set(data)
     })
 
     res.send({
@@ -113,32 +112,32 @@ app.post('/removeResource', (req, res) => {
 })
 
 app.post('/updateResource', (req, res) => {
-    user.db.collection('Resources').doc(req.body.uid).get().then((res) => {
+    user.db.collection('resources').doc(req.body.id).get().then((res) => {
         let data = res.data()            
         console.log(data)
-        if(req.body.Title)
-            {
-                data.Title = req.body.Title
-            }
-        if(req.body.Description)
+        if(req.body.title)
         {
-            data.Description = req.body.Description
+            data.title = req.body.title
         }
-        if(req.body.Grade)
+        if(req.body.description)
         {
-            data.Grade = req.body.Grade
+            data.description = req.body.description
         }
-        if(req.body.Subject)
+        if(req.body.grade)
         {
-            data.Subject = req.body.Subject
+            data.grade = req.body.grade
         }
-        if(req.body.TeacherId)
+        if(req.body.subject)
         {
-            data.TeacherId = req.body.TeacherId
+            data.subject = req.body.subject
         }
-        if(req.body.Name)
+        if(req.body.teacher_id)
         {
-            data.Name = req.body.Name
+            data.teacher_id = req.body.teacher_id
+        }
+        if(req.body.name)
+        {
+            data.name = req.body.name
         }
         if(req.body.file)
         {
@@ -152,16 +151,16 @@ app.post('/updateResource', (req, res) => {
         {
             data.time = req.body.time
         }
-        if(req.body.isArchive)
+        if(req.body.is_archive)
         {
-            data.isArchive = req.body.isArchive
+            data.is_archive = req.body.is_archive
         }
         if(req.body.video_url)
         {
             data.video_url = req.body.video_url
         }
 
-        user.db.collection('Resources').doc(req.body.uid).set(data)
+        user.db.collection('resources').doc(req.body.id).set(data)
     })
 
     res.send({
@@ -170,96 +169,96 @@ app.post('/updateResource', (req, res) => {
 })
 
 app.get('/library', (req, res) => {
-    user.db.collection('Resources').get().then(snapshot => {
+    user.db.collection('resources').get().then(snapshot => {
         let data = []
         snapshot.docs.forEach(doc => {
-            if(!doc.data().isArchive){
+            if(!doc.data().is_archive){
                 data.push(doc.data());
             }
         });
 
         //data = JSON.stringify(data)
         res.send({
-            Resources: data
+            resources: data
         })
     });
 })
 
 app.get('/library/filter', (req, res) => {
     var path = ''
-    if((req.query.Class) && (req.query.Subject)){
-        path = user.db.collection('Resources').where('Grade', '==', req.query.Class).where('Subject', '==', req.query.Subject)
-    }else if((req.query.Class) && (!req.query.Subject)){
-        path = user.db.collection('Resources').where('Grade', '==', req.query.Class)
-    }else if((!req.query.Class) && (req.query.Subject)){
-        path = user.db.collection('Resources').where('Subject', '==', req.query.Subject)
+    if((req.query.grade) && (req.query.subject)){
+        path = user.db.collection('resources').where('grade', '==', req.query.grade).where('subject', '==', req.query.subject)
+    }else if((req.query.grade) && (!req.query.subject)){
+        path = user.db.collection('resources').where('grade', '==', req.query.grade)
+    }else if((!req.query.grade) && (req.query.subject)){
+        path = user.db.collection('resources').where('subject', '==', req.query.subject)
     }
 
     path.get().then(snapshot => {
         let data = []
         snapshot.docs.forEach(doc => {
-            if(!doc.data().isArchive){
+            if(!doc.data().is_archive){
                 data.push(doc.data());
             }
         });
 
         //data = JSON.stringify(data)
         res.send({
-            Resources: data
+            resources: data
         })
     });
 })
 
 app.get('/library/myLibrary', (req, res) => {
-    user.db.collection('Resources').where('TeacherId', '==', req.query.id).get().then(snapshot => {
+    user.db.collection('resources').where('teacher_id', '==', req.query.id).get().then(snapshot => {
         let data = []
         snapshot.docs.forEach(doc => {
-            if(!doc.data().isArchive){
+            if(!doc.data().is_archive){
                 data.push(doc.data());
             }
         });
 
         //data = JSON.stringify(data)
         res.send({
-            Resources: data
+            resources: data
         })
     });
 })
 
 app.get('/library/myLibrary/filter', (req, res) => {
     var path = ''
-    if((req.query.Class) && (req.query.Subject)){
-        path = user.db.collection('Resources').where('Grade', '==', req.query.Class).where('Subject', '==', req.query.Subject)
-    }else if((req.query.Class) && (!req.query.Subject)){
-        path = user.db.collection('Resources').where('Grade', '==', req.query.Class)
-    }else if((!req.query.Class) && (req.query.Subject)){
-        path = user.db.collection('Resources').where('Subject', '==', req.query.Subject)
+    if((req.query.grade) && (req.query.subject)){
+        path = user.db.collection('resources').where('grade', '==', req.query.grade).where('subject', '==', req.query.subject)
+    }else if((req.query.grade) && (!req.query.subject)){
+        path = user.db.collection('resources').where('grade', '==', req.query.grade)
+    }else if((!req.query.grade) && (req.query.subject)){
+        path = user.db.collection('resources').where('subject', '==', req.query.subject)
     }
 
-    path.where('TeacherId', '==', req.query.id).get().then(snapshot => {
+    path.where('teacher_id', '==', req.query.id).get().then(snapshot => {
         let data = []
         snapshot.docs.forEach(doc => {
-            if(!doc.data().isArchive){
+            if(!doc.data().is_archive){
                 data.push(doc.data());
             }
         });
 
         //data = JSON.stringify(data)
         res.send({
-            Resources: data
+            resources: data
         })
     });
 })
 
 app.post('/addtag', (req, res) => {
-    if((req.body.subject.trim() == '') && (req.body.class.trim() == ''))
+    if((req.body.subject.trim() == '') && (req.body.grade.trim() == ''))
     {
         return res.send({
             result: 'Please fill all the fields properly !'
         })
     }
 
-    insert.addtag(req.body.subject, req.body.class)
+    insert.addtag(req.body.subject, req.body.grade)
 
     res.send({
         result: 'Tag has been added.'
@@ -274,23 +273,23 @@ app.get('/tags', (req, res) => {
             sdata.push(tag);
         });
 
-        snapshot.data().class.forEach(tag => {
+        snapshot.data().grade.forEach(tag => {
             cdata.push(tag);
         });
 
         //data = JSON.stringify(data)
         res.send({
-            Subject: sdata,
-            Class: cdata
+            subject: sdata,
+            grade: cdata
         })
     });
 })
 
 app.post('/signin', async (req,res) => {
-    if (req.body.type == 'Teachers') {
+    if (req.body.type == 'teacher') {
         let data;
         try {
-            data = await read.signinTeacher(req.body.uid)
+            data = await read.signinTeacher(req.body.id)
         }
         catch (e) {
             console.log(e)
@@ -304,10 +303,10 @@ app.post('/signin', async (req,res) => {
             result: data
         })
     }
-    else if (req.body.type === 'Students') {
+    else if (req.body.type === 'student') {
         let data;
         try {
-            data = await read.signinStudent(req.body.uid)
+            data = await read.signinStudent(req.body.id)
             console.log('student data ==>',data)
         }
         catch (e) {
@@ -322,10 +321,10 @@ app.post('/signin', async (req,res) => {
             result: data
         })
     }
-    else if (req.body.type === 'Parents') {
+    else if (req.body.type === 'parent') {
         let data;
         try {
-            data = await read.signinParent(req.body.uid)
+            data = await read.signinParent(req.body.id)
         }
         catch (e) {
             console.log(e)
@@ -345,7 +344,7 @@ app.get('*', (req, res) => {
     console.log('route not found')
     res.send({
         title: '404',
-        Name: 'Bilal Khan',
+        name: 'Bilal Khan',
         errorMessage: 'Page not found.'
     })
 })

@@ -6,19 +6,19 @@ const user = require('../models/user.js')
 var validator = require('validator');
 let admin = require('firebase-admin');
     
-const addResource = (Title,Description, Grade, Subject ,TeacherId, author , file='', video_url='', tags='') => {
+const addResource = (title,description, grade, subject ,teacher_id, author , file='', video_url='', tags='') => {
     try{
-        user.db.collection('Resources').add({
-            Description,
-            Grade,
-            TeacherId,
-            Subject,
-            Title,
+        user.db.collection('resources').add({
+            description,
+            grade,
+            teacher_id,
+            subject,
+            title,
             author,
             file,
             time: Date.now(),
             video_url,
-            isArchive: false,
+            is_archive: false,
             tags
         })
         .then((doc)=>{
@@ -30,20 +30,20 @@ const addResource = (Title,Description, Grade, Subject ,TeacherId, author , file
                       cacheControl: 'public, max-age=31536000',
                     }
                   }, function(err, file, apiResponse) {
-                      user.db.collection('Resources').doc(doc.id).set({video_url: apiResponse.mediaLink}, {merge: true});
+                      user.db.collection('resources').doc(doc.id).set({video_url: apiResponse.mediaLink}, {merge: true});
                   });
                 }
-            user.db.collection('Resources').doc(doc.id).set({Uid: doc.id}, {merge: true});
+            user.db.collection('resources').doc(doc.id).set({id: doc.id}, {merge: true});
             console.log('doc ===>', doc.id)
             let ResourceID = doc.id
-            user.db.collection('Teachers').doc(TeacherId).get()
+            user.db.collection('users').doc(teacher_id).get()
             .then((res)=>{
                 let userData = res.data()
                 // let Resource = []
                 // Resource.push(ResourceID)
-                console.log('resources ===>',userData.Resources)
-                userData.Resources ? userData.Resources = [...userData.Resources, ResourceID] : userData.Resources =[ResourceID]
-                user.db.collection('Teachers').doc(TeacherId).set(userData)
+                console.log('resources ===>' + res.data())
+                userData.resources ? userData.resources = [...userData.resources, ResourceID] : userData.resources =[ResourceID]
+                user.db.collection('users').doc(teacher_id).set(userData)
                 .then(()=>console.log('added Resource'))
                 .catch((e)=>console.log(e))
             })
@@ -56,16 +56,16 @@ const addResource = (Title,Description, Grade, Subject ,TeacherId, author , file
     }
 }
     
-const addtag = (Subject, Class) => {
+const addtag = (subject, grade) => {
     try{
-        if(!Subject == ''){
+        if(!subject == ''){
             user.db.collection('tags').doc('resources').update({
-                subject: admin.firestore.FieldValue.arrayUnion(Subject)
+                subject: admin.firestore.FieldValue.arrayUnion(subject)
             })
         }
-        if(!Class == ''){
+        if(!grade == ''){
             user.db.collection('tags').doc('resources').update({
-                class: admin.firestore.FieldValue.arrayUnion(Class)
+                grade: admin.firestore.FieldValue.arrayUnion(grade)
             })
         }
     } catch (e) {
@@ -76,19 +76,19 @@ const addtag = (Subject, Class) => {
 
 // addResource('testtitle','This math video of base powers.', '2nd year','CS','oi54FJxirqWa4NfOK4RKPch6El23','testauthor','NS','https://www.youtube.com/watch?v=L2zsmYaI5ww')
 
-const signupParent = (type, Name, NIC, Address, Phone, Email, Date, Month, Year, Uid) => {
+const signupParent = (type, name, nic, address, phone, email, date, month, year, id) => {
     try{
-        user.db.collection(type).doc(Uid).set({
-            type,
-            Name,
-            NIC,
-            Address,
-            Phone, 
-            Date,
-            Month,
-            Year,
-            Email,
-            Uid
+        user.db.collection('users').doc(id).set({
+            type: 'parent',
+            name,
+            nic,
+            address,
+            phone, 
+            date,
+            month,
+            year,
+            email,
+            id
         })
     } catch (e) {
         console.log(e);
@@ -96,20 +96,21 @@ const signupParent = (type, Name, NIC, Address, Phone, Email, Date, Month, Year,
     }
 }
 
-const signupTeacher = (type, Name, NIC, Address, Phone, Email, Date, Month, Year,Uid, qualification) => {
+const signupTeacher = (type, name, nic, address, phone, email, date, month, year,id, qualification, resources=[]) => {
     try{
-        user.db.collection(type).doc(Uid).set({
-            type,
-            Name,
-            NIC,
-            Address,
-            Phone,
-            Email,
-            Date,
-            Month,
-            Year,
-            Uid,
-            qualification
+        user.db.collection('users').doc(id).set({
+            type: 'teacher',
+            name,
+            nic,
+            address,
+            phone,
+            email,
+            date,
+            month,
+            year,
+            id,
+            qualification,
+            resources
         })
     } catch (e) {
         console.log(e);
@@ -117,23 +118,23 @@ const signupTeacher = (type, Name, NIC, Address, Phone, Email, Date, Month, Year
     }
 }
 
-const signupStudent = (type, Name, GuardianName, GuardianPhone, StudentPhone, School, Address, GuardianEmail, GuardianNIC, Date, Month, Year, StudentEmail, Uid) => {
+const signupStudent = (type, name, guardian_name, guardian_phone, student_phone, school, address, guardian_email, guardian_nic, date, month, year, student_email, id) => {
     try{
-        user.db.collection(type).doc(Uid).set({
-            type,
-            Name,
-            GuardianName,
-            GuardianPhone,
-            StudentPhone,
-            School,
-            Address,
-            GuardianEmail,
-            GuardianNIC,
-            Date,
-            Month,
-            Year,
-            StudentEmail,
-            Uid
+        user.db.collection('users').doc(id).set({
+            type: 'student',
+            name,
+            guardian_name,
+            guardian_phone,
+            student_phone,
+            school,
+            address,
+            guardian_email,
+            guardian_nic,
+            date,
+            month,
+            year,
+            student_email,
+            id
         })
     } catch (e) {
         console.log(e);
