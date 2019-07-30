@@ -77,23 +77,26 @@ app.post('/signup', (req, res) => {
     }
 })
 
-app.post('/addResource', (req, res) => {
+app.post('/addResource', async (req, res) => {
     if((req.body.title.trim() == '') || (!validator.isLength(req.body.title, min= 1, max= 60))  
         || (req.body.description.trim() == '') || (!validator.isLength(req.body.description, min= 4, max= 160)) 
         || (req.body.grade.trim() == '') 
         || (req.body.subject.trim() == '') 
         || (req.body.teacher_id.trim() == '') 
-        || (req.body.name.trim() == '') || (!validator.isLength(req.body.name, min= 2, max= undefined)))
+        || (req.body.author.trim() == '') || (!validator.isLength(req.body.author, min= 2, max= undefined)))
     {
         return res.send({
             result: 'Please fill all the fields properly !'
         })
     }
 
-    insert.addResource(req.body.title,req.body.description, req.body.grade, req.body.subject ,req.body.teacher_id, req.body.name, req.body.file, req.body.video_url, req.body.tags )
+    ret = await insert.addResource(req.body.title,req.body.description, req.body.grade, req.body.subject ,req.body.teacher_id, req.body.author, req.body.file, req.body.video_url, req.body.tags )
 
+    req.body.time = ret[0]
+    req.body.is_archive = ret[1]
+    req.body.id = ret[2]
     res.send({
-        result: req.body.title + ' has been added.'
+        result: req.body
     })
 })
 
@@ -134,10 +137,6 @@ app.post('/updateResource', (req, res) => {
         if(req.body.teacher_id)
         {
             data.teacher_id = req.body.teacher_id
-        }
-        if(req.body.name)
-        {
-            data.name = req.body.name
         }
         if(req.body.file)
         {
