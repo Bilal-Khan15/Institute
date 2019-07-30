@@ -79,7 +79,7 @@ app.post('/signup', (req, res) => {
 
 app.post('/addResource', async (req, res) => {
     if((req.body.title.trim() == '') || (!validator.isLength(req.body.title, min= 1, max= 60))  
-        || (req.body.description.trim() == '') || (!validator.isLength(req.body.description, min= 4, max= 160)) 
+        || (req.body.description.trim() == '') || (!validator.isLength(req.body.description, min= undefined, max= 1000)) 
         || (req.body.grade.trim() == '') 
         || (req.body.subject.trim() == '') 
         || (req.body.teacher_id.trim() == '') 
@@ -282,6 +282,48 @@ app.get('/tags', (req, res) => {
             grade: cdata
         })
     });
+})
+
+app.post('/views', (req, res) => {
+    user.db.collection('resources').doc(req.body.id).get().then((res) => {
+        let data = res.data()            
+
+        data.views += 1
+
+        user.db.collection('resources').doc(req.body.id).set(data)
+    })
+
+    res.send({
+        result: 'Targeted resource has been viewed.'
+    })
+})
+
+app.post('/helpful', (req, res) => {
+    user.db.collection('resources').doc(req.body.id).get().then((res) => {
+        let data = res.data()            
+
+        data.helpful += 1
+
+        user.db.collection('resources').doc(req.body.id).set(data)
+    })
+
+    res.send({
+        result: 'Targeted resource has been found helpful.'
+    })
+})
+
+app.post('/nothelpful', (req, res) => {
+    user.db.collection('resources').doc(req.body.id).get().then((res) => {
+        let data = res.data()            
+
+        data.nothelpful += 1
+
+        user.db.collection('resources').doc(req.body.id).set(data)
+    })
+
+    res.send({
+        result: 'Targeted resource has not been found helpful.'
+    })
 })
 
 app.post('/signin', async (req,res) => {
