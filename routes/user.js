@@ -3,10 +3,12 @@ const bodyParser = require('body-parser')
 var cors = require('cors')
 const user = require('../models/user.js')
 var validator = require('validator');
+var multipart = require('connect-multiparty');
 
 const app = express()
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cors())   
+var multipartMiddleware = multipart();
 
 let router = express.Router(),
    constants = require('../utils/constant'),
@@ -77,9 +79,9 @@ app.post('/signup', (req, res) => {
     }
 })
 
-app.post('/addResource', async (req, res) => {
+app.post('/addResource', multipartMiddleware, async (req, res) => {
     if((req.body.title.trim() == '') || (!validator.isLength(req.body.title, min= 1, max= 60))  
-        || (req.body.description.trim() == '') || (!validator.isLength(req.body.description, min= undefined, max= 1000)) 
+        || (req.body.description.trim() == '') || (!validator.isLength(req.body.description, min= 0, max= 1000)) 
         || (req.body.grade.trim() == '') 
         || (req.body.subject.trim() == '') 
         || (req.body.teacher_id.trim() == '') 
@@ -91,6 +93,8 @@ app.post('/addResource', async (req, res) => {
     }
 
     ret = await insert.addResource(req.body.title,req.body.description, req.body.grade, req.body.subject ,req.body.teacher_id, req.body.author, req.body.file, req.body.video_url, req.body.tags )
+
+    console.log('files ==> ' + req.files);
 
     req.body.time = ret[0]
     req.body.is_archive = ret[1]
@@ -305,8 +309,14 @@ app.post('/helpful', (req, res) => {
         data.helpful += 1
 
         user.db.collection('resources').doc(req.body.id).set(data)
-    })
 
+        user.db.collection('users').doc(req.body.sid).get().then((res) => {
+            let sdata = res.data()
+            sdata.helpful ? sdata.helpful = [...sdata.helpful, req.body.id] : sdata.helpful = [req.body.id]
+            user.db.collection('users').doc(req.body.sid).set(sdata)
+        })
+    })
+             
     res.send({
         result: 'Targeted resource has been found helpful.'
     })
@@ -319,8 +329,14 @@ app.post('/nothelpful', (req, res) => {
         data.nothelpful += 1
 
         user.db.collection('resources').doc(req.body.id).set(data)
-    })
 
+        user.db.collection('users').doc(req.body.sid).get().then((res) => {
+            let sdata = res.data()
+            sdata.nothelpful ? sdata.nothelpful = [...sdata.nothelpful, req.body.id] : sdata.nothelpful = [req.body.id]
+            user.db.collection('users').doc(req.body.sid).set(sdata)
+        })    
+    })
+                
     res.send({
         result: 'Targeted resource has not been found helpful.'
     })
