@@ -11,23 +11,22 @@ app.use(cors())
 var multipartMiddleware = multipart();
 
 let router = express.Router(),
-   constants = require('../utils/constant'),
-   insert = require('../db-functions/insert'),
-   db_delete = require('../db-functions/delete'),
-   read = require('../db-functions/read'),
-   update = require('../db-functions/update'),
-   utilsFunction = require('../utils/functions');
+    constants = require('../utils/constant'),
+    insert = require('../db-functions/insert'),
+    db_delete = require('../db-functions/delete'),
+    read = require('../db-functions/read'),
+    update = require('../db-functions/update'),
+    utilsFunction = require('../utils/functions');
 
 app.post('/signup', (req, res) => {
     if (req.body.type == 'parent') {
-        if((req.body.type.trim() == '')
-            || (req.body.name.trim() == '') || (!validator.isLength(req.body.name, min= 2, max= undefined))
-            || (req.body.nic.trim() == '') || (!validator.isLength(req.body.nic, min= 13, max= 16)) || (!validator.isNumeric(req.body.nic))
-            || (req.body.address.trim() == '') || (!validator.isLength(req.body.address, min= 5, max= 95)) 
-            || (req.body.phone.trim() == '') || (!validator.isNumeric(req.body.phone)) || (!validator.isLength(req.body.phone, min= 10, max= 15)) 
-            || (req.body.email.trim() == '') || (!validator.isEmail(req.body.email)) || (!validator.isLength(req.body.email, min= 5, max= 320))
-            || (req.body.date.trim() == '') || (req.body.month.trim() == '') || (req.body.year.trim() == '') )
-        {
+        if ((req.body.type.trim() == '')
+            || (req.body.name.trim() == '') || (!validator.isLength(req.body.name, min = 2, max = undefined))
+            || (req.body.nic.trim() == '') || (!validator.isLength(req.body.nic, min = 13, max = 16)) || (!validator.isNumeric(req.body.nic))
+            || (req.body.address.trim() == '') || (!validator.isLength(req.body.address, min = 5, max = 95))
+            || (req.body.phone.trim() == '') || (!validator.isNumeric(req.body.phone)) || (!validator.isLength(req.body.phone, min = 10, max = 15))
+            || (req.body.email.trim() == '') || (!validator.isEmail(req.body.email)) || (!validator.isLength(req.body.email, min = 5, max = 320))
+            || (req.body.date.trim() == '') || (req.body.month.trim() == '') || (req.body.year.trim() == '')) {
             return res.send({
                 result: 'Please fill all the fields properly !'
             })
@@ -38,14 +37,13 @@ app.post('/signup', (req, res) => {
         })
     }
     if (req.body.type == 'teacher') {
-        if((req.body.type.trim() == '') 
-            || (req.body.name.trim() == '') || (!validator.isLength(req.body.name, min= 2, max= undefined)) 
-            || (req.body.nic.trim() == '') || (!validator.isLength(req.body.nic, min= 13, max= 16)) || (!validator.isNumeric(req.body.nic)) 
-            || (req.body.address.trim() == '') || (!validator.isLength(req.body.address, min= 5, max= 95)) 
-            || (req.body.phone.trim() == '') || (!validator.isNumeric(req.body.phone)) || (!validator.isLength(req.body.phone, min= 10, max= 15)) 
-            || (req.body.email.trim() == '') || (!validator.isEmail(req.body.email))  || (!validator.isLength(req.body.email, min= 5, max= 320))
-            || (req.body.qualification.trim() == '')|| (req.body.date.trim() == '') || (req.body.month.trim() == '') || (req.body.year.trim() == ''))
-        {
+        if ((req.body.type.trim() == '')
+            || (req.body.name.trim() == '') || (!validator.isLength(req.body.name, min = 2, max = undefined))
+            || (req.body.nic.trim() == '') || (!validator.isLength(req.body.nic, min = 13, max = 16)) || (!validator.isNumeric(req.body.nic))
+            || (req.body.address.trim() == '') || (!validator.isLength(req.body.address, min = 5, max = 95))
+            || (req.body.phone.trim() == '') || (!validator.isNumeric(req.body.phone)) || (!validator.isLength(req.body.phone, min = 10, max = 15))
+            || (req.body.email.trim() == '') || (!validator.isEmail(req.body.email)) || (!validator.isLength(req.body.email, min = 5, max = 320))
+            || (req.body.qualification.trim() == '') || (req.body.date.trim() == '') || (req.body.month.trim() == '') || (req.body.year.trim() == '')) {
             return res.send({
                 result: 'Please fill all the fields properly !'
             })
@@ -56,18 +54,17 @@ app.post('/signup', (req, res) => {
         })
     }
     if (req.body.type == 'student') {
-        if((req.body.type.trim() == '') 
-            || (req.body.name.trim() == '') || (!validator.isLength(req.body.name, min= 2, max= undefined))
-            || (req.body.guardian_name.trim() == '') || (!validator.isLength(req.body.guardian_name, min= 2, max= undefined)) 
-            || (req.body.guardian_phone.trim() == '') || (!validator.isNumeric(req.body.guardian_phone)) || (!validator.isLength(req.body.guardian_phone, min= 10, max= 15)) 
-            || (req.body.student_phone.trim() == '') || (!validator.isNumeric(req.body.student_phone)) 
-            || (req.body.school.trim() == '') 
-            || (req.body.address.trim() == '') || (!validator.isLength(req.body.address, min= 5, max= 95)) 
-            || (req.body.guardian_email.trim() == '') || (!validator.isEmail(req.body.guardian_email)) || (!validator.isLength(req.body.guardian_email, min= 5, max= 320)) 
-            || (req.body.guardian_nic.trim() == '') || (!validator.isLength(req.body.guardian_nic, min= 13, max= 16)) || (!validator.isNumeric(req.body.guardian_nic))
-            || (req.body.date.trim() == '') || (req.body.month.trim() == '') || (req.body.year.trim() == '') 
-            || (req.body.student_email.trim() == '') || (!validator.isEmail(req.body.student_email)) || (!validator.isLength(req.body.student_email, min= 5, max= 320)))
-        {
+        if ((req.body.type.trim() == '')
+            || (req.body.name.trim() == '') || (!validator.isLength(req.body.name, min = 2, max = undefined))
+            || (req.body.guardian_name.trim() == '') || (!validator.isLength(req.body.guardian_name, min = 2, max = undefined))
+            || (req.body.guardian_phone.trim() == '') || (!validator.isNumeric(req.body.guardian_phone)) || (!validator.isLength(req.body.guardian_phone, min = 10, max = 15))
+            || (req.body.student_phone.trim() == '') || (!validator.isNumeric(req.body.student_phone))
+            || (req.body.school.trim() == '')
+            || (req.body.address.trim() == '') || (!validator.isLength(req.body.address, min = 5, max = 95))
+            || (req.body.guardian_email.trim() == '') || (!validator.isEmail(req.body.guardian_email)) || (!validator.isLength(req.body.guardian_email, min = 5, max = 320))
+            || (req.body.guardian_nic.trim() == '') || (!validator.isLength(req.body.guardian_nic, min = 13, max = 16)) || (!validator.isNumeric(req.body.guardian_nic))
+            || (req.body.date.trim() == '') || (req.body.month.trim() == '') || (req.body.year.trim() == '')
+            || (req.body.student_email.trim() == '') || (!validator.isEmail(req.body.student_email)) || (!validator.isLength(req.body.student_email, min = 5, max = 320))) {
             return res.send({
                 result: 'Please fill all the fields properly !'
             })
@@ -92,7 +89,7 @@ app.post('/addResource', multipartMiddleware, async (req, res) => {
         })
     }
 
-    ret = await insert.addResource(req.body.title,req.body.description, req.body.grade, req.body.subject ,req.body.teacher_id, req.body.author, req.body.file, req.body.video_url, req.body.tags )
+    ret = await insert.addResource(req.body.title, req.body.description, req.body.grade, req.body.subject, req.body.teacher_id, req.body.author, req.body.file, req.body.video_url, req.body.tags)
 
     console.log('files ==> ' + req.files);
 
@@ -106,7 +103,7 @@ app.post('/addResource', multipartMiddleware, async (req, res) => {
 
 app.post('/removeResource', (req, res) => {
     user.db.collection('resources').doc(req.body.id).get().then((res) => {
-        let data = res.data()            
+        let data = res.data()
 
         data.is_archive = true
 
@@ -120,46 +117,36 @@ app.post('/removeResource', (req, res) => {
 
 app.post('/updateResource', (req, res) => {
     user.db.collection('resources').doc(req.body.id).get().then((res) => {
-        let data = res.data()            
+        let data = res.data()
         console.log(data)
-        if(req.body.title)
-        {
+        if (req.body.title) {
             data.title = req.body.title
         }
-        if(req.body.description)
-        {
+        if (req.body.description) {
             data.description = req.body.description
         }
-        if(req.body.grade)
-        {
+        if (req.body.grade) {
             data.grade = req.body.grade
         }
-        if(req.body.subject)
-        {
+        if (req.body.subject) {
             data.subject = req.body.subject
         }
-        if(req.body.teacher_id)
-        {
+        if (req.body.teacher_id) {
             data.teacher_id = req.body.teacher_id
         }
-        if(req.body.file)
-        {
+        if (req.body.file) {
             data.file = req.body.file
         }
-        if(req.body.author)
-        {
+        if (req.body.author) {
             data.author = req.body.author
         }
-        if(req.body.time)
-        {
+        if (req.body.time) {
             data.time = req.body.time
         }
-        if(req.body.is_archive)
-        {
+        if (req.body.is_archive) {
             data.is_archive = req.body.is_archive
         }
-        if(req.body.video_url)
-        {
+        if (req.body.video_url) {
             data.video_url = req.body.video_url
         }
 
@@ -175,7 +162,7 @@ app.get('/library', (req, res) => {
     user.db.collection('resources').get().then(snapshot => {
         let data = []
         snapshot.docs.forEach(doc => {
-            if(!doc.data().is_archive){
+            if (!doc.data().is_archive) {
                 data.push(doc.data());
             }
         });
@@ -189,18 +176,18 @@ app.get('/library', (req, res) => {
 
 app.get('/library/filter', (req, res) => {
     var path = ''
-    if((req.query.grade) && (req.query.subject)){
+    if ((req.query.grade) && (req.query.subject)) {
         path = user.db.collection('resources').where('grade', '==', req.query.grade).where('subject', '==', req.query.subject)
-    }else if((req.query.grade) && (!req.query.subject)){
+    } else if ((req.query.grade) && (!req.query.subject)) {
         path = user.db.collection('resources').where('grade', '==', req.query.grade)
-    }else if((!req.query.grade) && (req.query.subject)){
+    } else if ((!req.query.grade) && (req.query.subject)) {
         path = user.db.collection('resources').where('subject', '==', req.query.subject)
     }
 
     path.get().then(snapshot => {
         let data = []
         snapshot.docs.forEach(doc => {
-            if(!doc.data().is_archive){
+            if (!doc.data().is_archive) {
                 data.push(doc.data());
             }
         });
@@ -216,7 +203,7 @@ app.get('/library/myLibrary', (req, res) => {
     user.db.collection('resources').where('teacher_id', '==', req.query.id).get().then(snapshot => {
         let data = []
         snapshot.docs.forEach(doc => {
-            if(!doc.data().is_archive){
+            if (!doc.data().is_archive) {
                 data.push(doc.data());
             }
         });
@@ -230,18 +217,18 @@ app.get('/library/myLibrary', (req, res) => {
 
 app.get('/library/myLibrary/filter', (req, res) => {
     var path = ''
-    if((req.query.grade) && (req.query.subject)){
+    if ((req.query.grade) && (req.query.subject)) {
         path = user.db.collection('resources').where('grade', '==', req.query.grade).where('subject', '==', req.query.subject)
-    }else if((req.query.grade) && (!req.query.subject)){
+    } else if ((req.query.grade) && (!req.query.subject)) {
         path = user.db.collection('resources').where('grade', '==', req.query.grade)
-    }else if((!req.query.grade) && (req.query.subject)){
+    } else if ((!req.query.grade) && (req.query.subject)) {
         path = user.db.collection('resources').where('subject', '==', req.query.subject)
     }
 
     path.where('teacher_id', '==', req.query.id).get().then(snapshot => {
         let data = []
         snapshot.docs.forEach(doc => {
-            if(!doc.data().is_archive){
+            if (!doc.data().is_archive) {
                 data.push(doc.data());
             }
         });
@@ -254,8 +241,7 @@ app.get('/library/myLibrary/filter', (req, res) => {
 })
 
 app.post('/addtag', (req, res) => {
-    if((req.body.subject.trim() == '') && (req.body.grade.trim() == ''))
-    {
+    if ((req.body.subject.trim() == '') && (req.body.grade.trim() == '')) {
         return res.send({
             result: 'Please fill all the fields properly !'
         })
@@ -290,7 +276,7 @@ app.get('/tags', (req, res) => {
 
 app.post('/views', (req, res) => {
     user.db.collection('resources').doc(req.body.id).get().then((res) => {
-        let data = res.data()            
+        let data = res.data()
 
         data.views += 1
 
@@ -304,7 +290,7 @@ app.post('/views', (req, res) => {
 
 app.post('/helpful', (req, res) => {
     user.db.collection('resources').doc(req.body.id).get().then((res) => {
-        let data = res.data()            
+        let data = res.data()
 
         data.helpful += 1
 
@@ -324,7 +310,7 @@ app.post('/helpful', (req, res) => {
 
 app.post('/nothelpful', (req, res) => {
     user.db.collection('resources').doc(req.body.id).get().then((res) => {
-        let data = res.data()            
+        let data = res.data()
 
         data.nothelpful += 1
 
@@ -342,7 +328,7 @@ app.post('/nothelpful', (req, res) => {
     })
 })
 
-app.post('/signin', async (req,res) => {
+app.post('/signin', async (req, res) => {
     if (req.body.type == 'teacher') {
         let data;
         try {
@@ -351,7 +337,7 @@ app.post('/signin', async (req,res) => {
         catch (e) {
             console.log(e)
         }
-        if(data == undefined){
+        if (data == undefined) {
             return res.send({
                 result: 'Record not found'
             })
@@ -364,12 +350,12 @@ app.post('/signin', async (req,res) => {
         let data;
         try {
             data = await read.signinStudent(req.body.id)
-            console.log('student data ==>',data)
+            console.log('student data ==>', data)
         }
         catch (e) {
             console.log(e)
         }
-        if(data == undefined){
+        if (data == undefined) {
             return res.send({
                 result: 'Record not found'
             })
@@ -386,7 +372,7 @@ app.post('/signin', async (req,res) => {
         catch (e) {
             console.log(e)
         }
-        if(data == undefined){
+        if (data == undefined) {
             return res.send({
                 result: 'Record not found'
             })
@@ -405,5 +391,5 @@ app.get('*', (req, res) => {
         errorMessage: 'Page not found.'
     })
 })
-   
+
 module.exports = app;
