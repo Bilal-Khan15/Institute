@@ -6,8 +6,6 @@ var serviceAccount = require("service_account_key.json");
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    // databaseURL: "https://testing-31853.firebaseio.com",
-    // storageBucket: "testing-31853.appspot.com"
     databaseURL: "https://website-ngo98.firebaseio.com",
     storageBucket: "website-ngo98.appspot.com"
 });
