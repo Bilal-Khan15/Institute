@@ -2,6 +2,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 var cors = require('cors')
 const user = require('../models/user.js')
+const fs = require('fs')
 var validator = require('validator');
 var multipart = require('connect-multiparty');
 
@@ -89,15 +90,17 @@ app.post('/addResource', multipartMiddleware, async (req, res) => {
         })
     }
 
-    ret = await insert.addResource(req.body.title, req.body.description, req.body.grade, req.body.subject, req.body.teacher_id, req.body.author, req.body.file, req.body.video_url, req.body.tags)
+    ret = await insert.addResource(req.body.title, req.body.description, req.body.grade, req.body.subject, req.body.teacher_id, req.body.author, req.files.file, req.body.video_url, req.body.tags)
 
-    console.log('files ==> ' + req.files);
-
-    console.log('files ==> ' + req.files);
+    // const filename = req.files.file.path.split('\\').pop().split('/').pop()                          
+    // user.bucket.file(filename).move(req.files.file.name);                  
 
     req.body.time = ret[0]
     req.body.is_archive = ret[1]
     req.body.id = ret[2]
+
+    fs.unlink
+
     res.send({
         result: req.body
     })

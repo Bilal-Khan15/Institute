@@ -27,7 +27,7 @@ const addResource = (title,description, grade, subject ,teacher_id, author , fil
             })
             .then((doc)=>{
                 if(video_url == ''){
-                    user.bucket.upload(file, {
+                    user.bucket.upload(file.path, {
                         gzip: true,
                         // destination: 'Bilal/' + file,
                         metadata: {
