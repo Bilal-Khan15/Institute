@@ -90,14 +90,36 @@ app.post('/addResource', multipartMiddleware, async (req, res) => {
         })
     }
 
-    ret = await insert.addResource(req.body.title, req.body.description, req.body.grade, req.body.subject, req.body.teacher_id, req.body.author, req.files.file, req.body.video_url, req.body.tags)
+    // ret = await insert.addResource(req.body.title, req.body.description, req.body.grade, req.body.subject, req.body.teacher_id, req.body.author, req.files.file, req.body.video_url, req.body.tags)
 
     // const filename = req.files.file.path.split('\\').pop().split('/').pop()                          
-    // user.bucket.file(filename).move(req.files.file.name);                  
+    // user.bucket.file(filename).move(req.files.file.name);   
+    
+    
 
-    req.body.time = ret[0]
-    req.body.is_archive = ret[1]
-    req.body.id = ret[2]
+    // const dataBuffer = fs.readFileSync(req.files.file.path, function (err, data) {
+    //     //console.log('data ==> ' + data)
+    // })
+    // // const dataJSON = dataBuffer.toString()
+    // // const notes = JSON.parse(dataJSON)
+    // // console.log(notes)
+    // console.log('buffer ==> ' + dataBuffer)
+
+
+
+
+    let buf = Buffer.from(req.files.file)
+    let str = Buffer.from(buf).toString();
+    console.log(str)
+
+
+
+
+
+
+    // req.body.time = ret[0]
+    // req.body.is_archive = ret[1]
+    // req.body.id = ret[2]
 
     fs.unlink
 
