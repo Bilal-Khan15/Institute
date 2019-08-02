@@ -17,18 +17,20 @@ exports.helloWorld = functions.https.onRequest((request, response) => {
 // const ALGOLIA_ADMIN_KEY = functions.config().algolia.api_key;
 // const ALGOLIA_SEARCH_KEY = functions.config().algolia.search_key;
 
-const ALGOLIA_INDEX_NAME = 'notes';
+const ALGOLIA_INDEX_NAME = 'search';
 const client = algoliasearch('CRDLA463IZ', '112f0f83a5340f940f9acb5e24299921');
 
 const index = client.initIndex(ALGOLIA_INDEX_NAME);
 
 const objects = [{
-  objectID: 1,
-  name: 'Bila'
-},{
-    objectID: 2,
-    name: 'Bilal'
-  }];
+  objectID: 3,
+  name: 'Iqbal'
+ }
+// ,{
+//     objectID: 2,
+//     name: 'Bilal'
+//   }
+];
 
 index
   .saveObjects(objects)
@@ -40,7 +42,7 @@ index
   });
 
 index
-  .search('Bil')
+  .search('Bilal')
   .then(({ hits }) => {
     console.log('same ==> ' + hits);
   })

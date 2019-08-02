@@ -201,17 +201,59 @@ app.get('/library', (req, res) => {
     });
 })
 
-app.get('/library/filter', (req, res) => {
-    var path = ''
-    if ((req.query.grade) && (req.query.subject)) {
-        path = user.db.collection('resources').where('grade', '==', req.query.grade).where('subject', '==', req.query.subject)
-    } else if ((req.query.grade) && (!req.query.subject)) {
-        path = user.db.collection('resources').where('grade', '==', req.query.grade)
-    } else if ((!req.query.grade) && (req.query.subject)) {
-        path = user.db.collection('resources').where('subject', '==', req.query.subject)
-    }
+// const check = {
+//     subject:[
+//         { "label": "Chem"},
+//         { "label": "Phys"},
+//         { "label": "Maths"},
+//     ],
+//     grade:[
+//         { "label": "Masters"},
+//         { "label": "Bachelors"},
+//         { "label": "PhD"},
+//     ],
+//     time: Date.now()
+// }
 
-    path.get().then(snapshot => {
+const check = {
+    subject:[
+        { "label": "Computer"},
+    ],
+    grade:[
+        { "label": "11"},
+    ]
+}
+// var today = new Date();
+// var dd = String(today.getDate()).padStart(2, '0');
+// var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+// var yyyy = today.getFullYear();
+
+// currentTime = mm + '/' + dd + '/' + yyyy;
+// console.log(currentTime)
+app.get('/library/filter', (req, res) => {
+    // var path = ""
+    // path = path + "user.db.collection('resources')"
+    // check.subject.forEach(doc => {
+    //     path = path + ".where('subject', '==', '"+ doc.label + "')"
+    // });
+    // check.grade.forEach(doc => {
+    //     path = path + ".where('grade', '==', '"+ doc.label + "')"
+    // });
+    // // path = path + ".where('time', '==', '"+ check.time + "')"
+
+    // console.log(path)
+
+    var collection = user.db.collection('resources')
+ 
+    check.subject.forEach(doc => {
+        collection = collection.where('subject', '==', doc.label)
+    });
+    check.grade.forEach(doc => {
+        collection = collection.where('grade', '==', doc.label)
+    });
+    // collection = collection.where('time', '==', check.time)
+
+    collection.get().then(snapshot => {
         let data = []
         snapshot.docs.forEach(doc => {
             if (!doc.data().is_archive) {
