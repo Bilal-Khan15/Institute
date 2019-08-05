@@ -9,7 +9,14 @@ let admin = require('firebase-admin');
 const addResource = (title,description, grade, subject ,teacher_id, author , file='', video_url='', tags='') => {
     return new Promise((resolve, reject) => {
         let ret = []
-        let time = Date.now()
+        var today = new Date();
+        var dd = String(today.getDate()).padStart(2, '0');
+        var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+        var yyyy = today.getFullYear();
+        currentTime = mm + '/' + dd + '/' + yyyy;
+        const date = new Date(currentTime);
+        var time = date.getTime()
+
         let is_archive = false
         try{
             user.db.collection('resources').add({
