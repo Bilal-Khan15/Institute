@@ -127,6 +127,11 @@ app.post('/updateResource', (req, res) => {
         }
         if (req.body.file) {
             data.file = req.body.file
+            data.video_url = ''
+        }
+        else if (req.body.video_url) {
+            data.video_url = req.body.video_url
+            data.file = ''
         }
         if (req.body.author) {
             data.author = req.body.author
@@ -136,9 +141,6 @@ app.post('/updateResource', (req, res) => {
         }
         if (req.body.is_archive) {
             data.is_archive = req.body.is_archive
-        }
-        if (req.body.video_url) {
-            data.video_url = req.body.video_url
         }
 
         user.db.collection('resources').doc(req.body.id).set(data)
