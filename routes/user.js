@@ -19,7 +19,7 @@ let router = express.Router(),
     update = require('../db-functions/update'),
     utilsFunction = require('../utils/functions');
 
-app.post('/signup', (req, res, err) => {
+app.post('/signup', (req, res) => {
     if (req.body.type == 'parent') {
         if ((req.body.type.trim() == '')
             || (req.body.name.trim() == '') || (!validator.isLength(req.body.name, min = 2, max = undefined))
@@ -81,38 +81,11 @@ app.post('/addResource', multipartMiddleware, async (req, res) => {
             return res.status(404).send({ error: 'Please fill all the fields properly !' })
         }
 
-    ret = await insert.addResource(req.body.title, req.body.description, req.body.grade, req.body.subject, req.body.teacher_id, req.body.author, req.files.file, req.body.video_url, req.body.tags)
-
-    // const filename = req.files.file.path.split('\\').pop().split('/').pop()                          
-    // user.bucket.file(filename).move(req.files.file.name);   
-    
-    
-
-    // const dataBuffer = fs.readFileSync(req.files.file.path, function (err, data) {
-    //     //console.log('data ==> ' + data)
-    // })
-    // // const dataJSON = dataBuffer.toString()
-    // // const notes = JSON.parse(dataJSON)
-    // // console.log(notes)
-    // console.log('buffer ==> ' + dataBuffer)
-
-
-
-
-    // let buf = Buffer.from(req.files.file)
-    // let str = Buffer.from(buf).toString();
-    // console.log(str)
-
-
-
-
-
+    ret = await insert.addResource(req.body.title, req.body.description, req.body.grade, req.body.subject, req.body.teacher_id, req.body.author, req.body.file, req.body.video_url, req.body.tags)
 
     req.body.time = ret[0]
     req.body.is_archive = ret[1]
     req.body.id = ret[2]
-
-    fs.unlink
 
     res.send({
         result: req.body
@@ -191,33 +164,6 @@ app.get('/library', (req, res) => {
         })
     });
 })
-
-// const check = {
-//     subject:[
-//         { "label": "Computer"},
-//         { "label": "Phys"},
-//         { "label": "Maths"},
-//     ],
-//     grade:[
-//         { "label": "Masters"},
-//         { "label": "3rd Year"},
-//         { "label": "12"},
-//     ],
-//     time: 'last_week'
-// }
-
-// var today = new Date();
-// var dd = String(today.getDate()).padStart(2, '0');
-// var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-// var yyyy = today.getFullYear();
-// currentTime = mm + '/' + dd + '/' + yyyy;
-// // console.log(currentTime)
-
-// const date2 = new Date(currentTime);
-// const date1 = new Date('06/03/2009');
-// const diffTime = Math.abs(date2.getTime() - date1.getTime());
-// const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-// console.log(diffDays);
 
 function getdate(day)
 {
@@ -364,18 +310,33 @@ app.post('/views', (req, res) => {
 app.post('/helpful', (req, res) => {
     user.db.collection('resources').doc(req.body.id).get().then((res) => {
         let data = res.data()
+        let chk = false
 
-        data.helpful += 1
+        if(data.responsers){
+            data.responsers.forEach(id => {
+                if(id == req.body.sid){
+                    chk = true
+                }
+            })
+        }else{
+            data.responsers = []
+        }
 
-        user.db.collection('resources').doc(req.body.id).set(data)
-
-        user.db.collection('users').doc(req.body.sid).get().then((res) => {
-            let sdata = res.data()
-            sdata.helpful ? sdata.helpful = [...sdata.helpful, req.body.id] : sdata.helpful = [req.body.id]
-            user.db.collection('users').doc(req.body.sid).set(sdata)
-        })
+        if(!chk)
+        {
+            data.helpful += 1
+            data.responsers.push(req.body.sid)
+    
+            user.db.collection('resources').doc(req.body.id).set(data)
+    
+            user.db.collection('users').doc(req.body.sid).get().then((res) => {
+                let sdata = res.data()
+                sdata.helpful ? sdata.helpful = [...sdata.helpful, req.body.id] : sdata.helpful = [req.body.id]
+                user.db.collection('users').doc(req.body.sid).set(sdata)
+            })
+        }
     })
-             
+    
     res.send({
         result: 'Targeted resource has been found helpful.'
     })
@@ -384,18 +345,34 @@ app.post('/helpful', (req, res) => {
 app.post('/nothelpful', (req, res) => {
     user.db.collection('resources').doc(req.body.id).get().then((res) => {
         let data = res.data()
+        let chk = false
 
-        data.nothelpful += 1
+        if(data.responsers){
+            data.responsers.forEach(id => {
+                if(id == req.body.sid){
+                    chk = true
+                }
+            })
+        }else{
+            data.responsers = []
+        }
 
-        user.db.collection('resources').doc(req.body.id).set(data)
+        if(!chk)
+        {
+            data.nothelpful += 1
+            data.responsers.push(req.body.sid)
 
-        user.db.collection('users').doc(req.body.sid).get().then((res) => {
-            let sdata = res.data()
-            sdata.nothelpful ? sdata.nothelpful = [...sdata.nothelpful, req.body.id] : sdata.nothelpful = [req.body.id]
-            user.db.collection('users').doc(req.body.sid).set(sdata)
-        })    
+            user.db.collection('resources').doc(req.body.id).set(data)
+
+            user.db.collection('users').doc(req.body.sid).get().then((res) => {
+                let sdata = res.data()
+                sdata.nothelpful ? sdata.nothelpful = [...sdata.nothelpful, req.body.id] : sdata.nothelpful = [req.body.id]
+                user.db.collection('users').doc(req.body.sid).set(sdata)
+            })    
+        }
     })
-                
+
+            
     res.send({
         result: 'Targeted resource has not been found helpful.'
     })

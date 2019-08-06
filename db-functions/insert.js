@@ -65,8 +65,6 @@ const addResource = (title,description, grade, subject ,teacher_id, author , fil
     })
 }
 
-// addResource('title','description', 'grade', 'subject' ,'teacher_id', 'author' , file='', video_url='', tags='')
-
 const addtag = (subject, grade) => {
     try{
         if(!subject == ''){

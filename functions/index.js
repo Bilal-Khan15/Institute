@@ -1,9 +1,6 @@
 const functions = require('firebase-functions');
 const algoliasearch = require('algoliasearch');
 
-// Create and Deploy Your First Cloud Functions
-// https://firebase.google.com/docs/functions/write-firebase-functions
-
 exports.helloWorld = functions.https.onRequest((request, response) => {
  response.send("Hello from Firebase!");
 });
@@ -23,14 +20,13 @@ const client = algoliasearch('CRDLA463IZ', '112f0f83a5340f940f9acb5e24299921');
 const index = client.initIndex(ALGOLIA_INDEX_NAME);
 
 const objects = [{
-  objectID: 3,
-  name: 'Iqbal'
- }
-// ,{
-//     objectID: 2,
-//     name: 'Bilal'
-//   }
-];
+    objectID: 3,
+    name: 'Iqbal'
+  }
+  ,{
+    objectID: 2,
+    name: 'Bilal'
+}];
 
 index
   .saveObjects(objects)
