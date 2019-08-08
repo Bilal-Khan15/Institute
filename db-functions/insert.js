@@ -6,6 +6,56 @@ const user = require('../models/user.js')
 var validator = require('validator');
 let admin = require('firebase-admin');
     
+const addAnnouncement = (type ,teacher_id , title, marks, description, attachment, suggestion=[], subject, section=[], grade=[]) => {
+    return new Promise((resolve, reject) => {
+        let ret = []
+        var today = new Date();
+        var dd = String(today.getDate()).padStart(2, '0');
+        var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+        var yyyy = today.getFullYear();
+        currentTime = mm + '/' + dd + '/' + yyyy;
+        const date = new Date(currentTime);
+        var time = date.getTime()
+
+        try{
+            user.db.collection('announcements').add({
+                type, 
+                teacher_id,
+                title, 
+                marks, 
+                description,
+                time, 
+                attachment, 
+                suggestion, 
+                subject, 
+                section, 
+                grade
+            })
+            .then((doc)=>{
+                if(attachment){
+                    user.bucket.upload(attachment, {
+                        gzip: true,
+                        // destination: 'Bilal/' + file,
+                        metadata: {
+                          cacheControl: 'public, max-age=31536000',
+                        }
+                      }, function(err, file, apiResponse) {
+                          user.db.collection('announcements').doc(doc.id).set({attachment: apiResponse.mediaLink}, {merge: true});
+                      });
+                    }
+                    ret.push(time, doc.id)
+                    user.db.collection('announcements').doc(doc.id).set({id: doc.id}, {merge: true})
+                    .then(() => resolve(ret))
+                    .catch((e)=>console.log(e))
+            })
+            .catch((e) => console.log(e))
+        } catch (e) {
+            console.log(e);
+            throw new Error(e)
+        }
+    })
+}
+    
 const addResource = (title,description, grade, subject ,teacher_id, author , file='', video_url='', tags='') => {
     return new Promise((resolve, reject) => {
         let ret = []
@@ -154,5 +204,6 @@ module.exports = {
     addtag: addtag,
     signupParent: signupParent,
     signupTeacher: signupTeacher,
-    signupStudent: signupStudent
+    signupStudent: signupStudent,
+    addAnnouncement: addAnnouncement
 }

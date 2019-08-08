@@ -71,7 +71,92 @@ app.post('/signup', (req, res) => {
     }
 })
 
-app.post('/addResource', multipartMiddleware, async (req, res) => {
+app.post('/addAnnouncement', async (req, res) => {
+    if((req.body.type.trim() == '') 
+        || (req.body.teacher_id.trim() == '') 
+        ||(req.body.title.trim() == '') || (!validator.isLength(req.body.title, min= 1, max= 60))  
+        || (req.body.marks == undefined) 
+        || (req.body.description.trim() == '') || (!validator.isLength(req.body.description, min= 0, max= 1000)) 
+        || (req.body.subject.trim() == '') 
+        || (req.body.section == []) 
+        || (req.body.grade == [])){
+            return res.status(404).send({ error: 'Please fill all the fields properly !' })
+        }
+
+    ret = await insert.addAnnouncement(req.body.type, req.body.teacher_id, req.body.title, req.body.marks, req.body.description, req.body.attachment, req.body.suggestion, req.body.subject, req.body.section, req.body.grade)
+
+    req.body.time = ret[0]
+    req.body.id = ret[1]
+
+    res.send({
+        result: req.body
+    })
+})
+
+app.get('/announcements', (req, res) => {
+    user.db.collection('announcements').get().then(snapshot => {
+        let data = []
+        snapshot.docs.forEach(doc => {
+            data.push(doc.data());
+        });
+
+        //data = JSON.stringify(data)
+        res.send({
+            resources: data
+        })
+    });
+})
+
+app.get('/announcements', (req, res) => {
+    user.db.collection('announcements').get().then(snapshot => {
+        let data = []
+        snapshot.docs.forEach(doc => {
+            data.push(doc.data());
+        });
+
+        //data = JSON.stringify(data)
+        res.send({
+            resources: data
+        })
+    });
+})
+
+app.get('/broadcastAnnouncement',async (req, res) => {
+    user.db.collection('announcements').doc(req.query.id).get().then(snapshot => {
+        
+        let data = []
+        snapshot.data().grade.forEach(g => {
+            snapshot.data().section.forEach(s => {
+                user.db.collection('grades').where('grade', '==', g).where('section', '==', s).where('subject', '==', snapshot.data().subject).get().then(doc => {
+                    data = doc.docs.forEach(snap => {
+                        data.push(snap.data().grade)  
+                    })
+                })
+            })
+        })
+
+        // data = JSON.stringify(data)
+        res.send({
+            resources: data
+        })
+    })
+})
+
+app.get('/myAnnouncements', (req, res) => {
+    user.db.collection('announcements').get().then(snapshot => {
+        let data = []
+        snapshot.docs.forEach(doc => {
+            data.push(doc.data());
+        });
+
+        //data = JSON.stringify(data)
+        res.send({
+            resources: data
+        })
+    });
+})
+
+app.post('/addResource', async (req, res) => {
     if((req.body.title.trim() == '') || (!validator.isLength(req.body.title, min= 1, max= 60))  
         || (req.body.description.trim() == '') || (!validator.isLength(req.body.description, min= 0, max= 1000)) 
         || (req.body.grade.trim() == '') 
@@ -172,6 +257,7 @@ function getdate(day)
     if(day == 'yesterday') { diffDays = 1 } 
     else if(day == 'last_week') { diffDays = 7 } 
     else if(day == 'last_month') { diffDays = 31 } 
+    else if(day == 'most_recent') { return 0 }
 
     var today = new Date();
     var dd = String(today.getDate()).padStart(2, '0');
@@ -190,24 +276,22 @@ app.get('/library/filter', (req, res) => {
     user.db.collection('resources').where('time', '>=', time).get().then(snapshot => {
         let data = []
         snapshot.docs.forEach(doc => {
-            stat:{
-                let chk = false
-                req.query.subject.forEach(sub => {
-                    if((!doc.data().is_archive) && (doc.data().subject == sub.label))
-                    {
-                        data.push(doc.data())
-                        chk = true
-                    }
-                });
+            let chk = false
+            req.query.subject.forEach(sub => {
+                if((!doc.data().is_archive) && (doc.data().subject == sub.label))
+                {
+                    data.push(doc.data())
+                    chk = true
+                }
+            });
 
-                req.query.grade.forEach(sub => {
-                    if((!doc.data().is_archive) && (doc.data().grade == sub.label) && (!chk))
-                    {
-                        data.push(doc.data())
-                        chk = true
-                    }
-                });
-            }
+            req.query.grade.forEach(sub => {
+                if((!doc.data().is_archive) && (doc.data().grade == sub.label) && (!chk))
+                {
+                    data.push(doc.data())
+                    chk = true
+                }
+            });
         });
         res.send({
                 resources: data
@@ -236,24 +320,22 @@ app.get('/library/myLibrary/filter', (req, res) => {
     user.db.collection('resources').where('teacher_id', '==', req.query.id).where('time', '>=', time).get().then(snapshot => {
         let data = []
         snapshot.docs.forEach(doc => {
-            stat:{
-                let chk = false
-                req.query.subject.forEach(sub => {
-                    if((!doc.data().is_archive) && (doc.data().subject == sub.label))
-                    {
-                        data.push(doc.data())
-                        chk = true
-                    }
-                });
+            let chk = false
+            req.query.subject.forEach(sub => {
+                if((!doc.data().is_archive) && (doc.data().subject == sub.label))
+                {
+                    data.push(doc.data())
+                    chk = true
+                }
+            });
 
-                req.query.grade.forEach(sub => {
-                    if((!doc.data().is_archive) && (doc.data().grade == sub.label) && (!chk))
-                    {
-                        data.push(doc.data())
-                        chk = true
-                    }
-                });
-            }
+            req.query.grade.forEach(sub => {
+                if((!doc.data().is_archive) && (doc.data().grade == sub.label) && (!chk))
+                {
+                    data.push(doc.data())
+                    chk = true
+                }
+            });
         });
         res.send({
                 resources: data
