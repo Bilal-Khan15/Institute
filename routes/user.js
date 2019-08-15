@@ -141,7 +141,7 @@ app.get('/myAnnouncements', (req, res) => {
 
 
 
-const addingjson = (snapshot, test) => new Promise((resolve, reject) => {
+const addingclass = (snapshot, test) => new Promise((resolve, reject) => {
     test = []
     snapshot.docs.forEach(doc => {
         test.push(doc.data())
@@ -149,33 +149,65 @@ const addingjson = (snapshot, test) => new Promise((resolve, reject) => {
     resolve(test)
 })
 
-const addingsec = (grade) => new Promise((resolve, reject) => {
-    grade.forEach(gra => {
-        var sections_list = gra.sections
-        gra.sections = []
-        sections_list.forEach(sec => {
-            user.db.collection('sections').where('id', '==', sec).get().then(async (secs) => {
-                gra.sections = await addingjson(secs, gra.sections)
+// const addingsec = (grade) => new Promise((resolve, reject) => {
+//     grade.forEach(gra => {
+//         var sections_list = gra.sections
+//         gra.sections = []
+//         sections_list.forEach(sec => {
+//             user.db.collection('sections').where('id', '==', sec).get().then(async (secs) => {
+//                 gra.sections = await addingclass(secs, gra.sections)
+//             })
+//         })
+//     })
+//     console.log(grade)
+//     resolve(grade)
+// })
+
+app.get('/json', async (req, res) => {
+    var grade = []
+    var sec = []
+    var subj = []
+    await user.db.collection('grades').get().then(async (classes) => {
+        grade = await addingclass(classes, grade)
+    })
+
+    await user.db.collection('sections').get().then(async (sections) => {
+        sec = await addingclass(sections, sec)
+    })
+
+    await user.db.collection('subjects').get().then(async (subjs) => {
+        subj = await addingclass(subjs, subj)
+    })
+
+    await sec.map(g => {
+        var subjects_list = g.subjects
+        g.subjects = []
+        subj.map(s => {
+            subjects_list.map(temp => {
+                if(temp == s.id)
+                {
+                    return g.subjects.push(s)
+                }
             })
         })
     })
-    console.log(grade)
-    resolve(grade)
-})
 
-
-app.get('/json', (req, res) => {
-    user.db.collection('grades').get().then(async (classes) => {
-        var grade = []
-        grade = await addingjson(classes, grade)
-
-        grade = await addingsec(grade)
-
-        res.send(grade)
+    await grade.map(g => {
+        var sections_list = g.sections
+        g.sections = []
+        sec.map(s => {
+            sections_list.map(temp => {
+                if(temp == s.id)
+                {
+                    return g.sections.push(s)
+                }
+            })
+        })
     })
+
+    // grade = await JSON.stringify(grade)
+    res.send(grade)
 })
-
-
 
 
 
