@@ -107,53 +107,211 @@ app.get('/announcements', (req, res) => {
     });
 })
 
-app.get('/announcements', (req, res) => {
-    user.db.collection('announcements').get().then(snapshot => {
-        let data = []
-        snapshot.docs.forEach(doc => {
-            data.push(doc.data());
-        });
-
-        //data = JSON.stringify(data)
-        res.send({
-            resources: data
+const my_announcements = (snapshot) => new Promise((resolve, reject) => {
+    let data = []
+    snapshot.docs.forEach(doc => {
+        doc.data().id.get()
+        .then(snap => {
+            console.log(snap.data());
+            resolve(snap.data())
         })
     });
 })
 
-app.get('/broadcastAnnouncement',async (req, res) => {
-    user.db.collection('announcements').doc(req.query.id).get().then(snapshot => {
-        
-        let data = []
-        snapshot.data().grade.forEach(g => {
-            snapshot.data().section.forEach(s => {
-                user.db.collection('grades').where('grade', '==', g).where('section', '==', s).where('subject', '==', snapshot.data().subject).get().then(doc => {
-                    data = doc.docs.forEach(snap => {
-                        data.push(snap.data().grade)  
-                    })
-                })
+app.get('/myAnnouncements', (req, res) => {
+    let data = []
+    user.db.collection('announcements').where('student_id', 'array-contains', req.query.id).get().then(snapshot => {
+        my_announcements(snapshot)
+        .then(ans => {
+            data.push(ans)
+
+            res.send({
+                resources: data
             })
         })
+    });
+})
 
-        // data = JSON.stringify(data)
-        res.send({
-            resources: data
+
+
+
+
+
+
+
+
+
+const addingjson = (snapshot, test) => new Promise((resolve, reject) => {
+    test = []
+    snapshot.docs.forEach(doc => {
+        test.push(doc.data())
+    })
+    resolve(test)
+})
+
+const addingsec = (grade) => new Promise((resolve, reject) => {
+    grade.forEach(gra => {
+        var sections_list = gra.sections
+        gra.sections = []
+        sections_list.forEach(sec => {
+            user.db.collection('sections').where('id', '==', sec).get().then(async (secs) => {
+                gra.sections = await addingjson(secs, gra.sections)
+            })
+        })
+    })
+    console.log(grade)
+    resolve(grade)
+})
+
+
+app.get('/json', (req, res) => {
+    user.db.collection('grades').get().then(async (classes) => {
+        var grade = []
+        grade = await addingjson(classes, grade)
+
+        grade = await addingsec(grade)
+
+        res.send(grade)
+    })
+})
+
+
+
+
+
+
+
+
+
+
+
+// app.get('/broadcastAnnouncement', (req, res) => {
+//     var data = [];
+        
+//     user.db.collection('announcement_details').doc(req.query.id).get().then(snapshot => {
+//         snapshot.data().grade.forEach(g => {
+//             snapshot.data().section.forEach(s => {
+//                 user.db.collection('grades').where('grade', '==', g).where('section', '==', s).where('subject', '==', snapshot.data().subject).get().then(doc => {
+//                     if(doc.docs){
+//                         data.push(doc.docs[0].data().grade) 
+//                         console.log(doc.docs[0].data().grade) 
+//                     }
+//                 }).catch(err => console.log('error'));
+//             })
+//         })
+
+//         console.log(data)
+//         // data = JSON.stringify(data)
+//         res.send({
+//             resources: data
+//         })
+//     })
+// })
+
+
+
+
+
+
+
+
+
+
+
+// var goo = '12'
+// var soo = 'A'
+// var subjoo = 'Computer'
+
+// var broadcast = (g, s, subj) => new Promise((resolve, reject) => {
+//     user.db.collection('grades').where('grade', '==', g).where('section', '==', s).where('subject', '==', subj).get().then(doc => {
+//         if(doc.docs){
+//             resolve(doc.docs[0].data()) 
+//         }
+//     }).catch(err => console.log('error'));
+// })
+
+// app.get('/broadcastAnnouncement', (req, res) => {
+//     var data = [];
+//     var ans = [];
+//     var itemArray1 = [1, 2, 3, 4, 5];
+//     var itemArray2 = ['a', 'b', 'c', 'd', 'e'];
+    
+    
+//     // user.db.collection('announcement_details').doc(req.query.id).get().then(snapshot => {
+//         // classes = snapshot.data().grade
+//         // sec = snapshot.data().section
+//         subj = 'Computer'
+//         itemArray1.forEach(g => {
+//             itemArray2.forEach(s => {
+//                 data.push(broadcast(goo, soo, subjoo));
+//             })
+//         })
+//     // })
+ 
+//     Promise.all(data)
+//     .then(results => {
+//         console.log('final' + results);
+    
+//         // data = JSON.stringify(data)
+//         res.send({
+//             resources: results
+//         })
+//     })
+//     .catch(err => {
+//         console.error(err.message);
+//     })    
+// })
+
+
+
+
+
+
+
+
+
+
+
+
+
+const p2_announcements = (sid) => new Promise((resolve, reject) => {
+    let data2 = []
+    user.db.collection('announcements').where('student_id', 'array-contains', sid).get().then(snapshot => {
+        my_announcements(snapshot)
+        .then(ans2 => {
+            data2.push(ans2)
         })
     })
 })
 
-app.get('/myAnnouncements', (req, res) => {
-    user.db.collection('announcements').get().then(snapshot => {
-        let data = []
-        snapshot.docs.forEach(doc => {
-            data.push(doc.data());
-        });
+const p1_announcements = (res) => new Promise((resolve, reject) => {
+    let data1 = []
+    res.data().student_id.forEach(sid => {
+        p2_announcements(sid)
+        .then(ans1 => {
+            data1.push(ans1)
 
-        //data = JSON.stringify(data)
-        res.send({
-            resources: data
+            //data = JSON.stringify(data)
+            res.send({
+                resources: data1
+            })
         })
     });
+})
+
+app.get('/pAnnouncements', (req, res) => {
+    let data = []
+    user.db.collection('users').doc(req.query.id).get().then(res => {
+        p1_announcements(res)
+        .then(ans => {
+            data.push(ans)
+
+            //data = JSON.stringify(data)
+            res.send({
+                resources: data
+            })
+        })
+    })
 })
 
 app.post('/addResource', async (req, res) => {
@@ -271,30 +429,28 @@ function getdate(day)
     return date1 
 }
 
-app.get('/library/filter', (req, res) => {
-    var time = getdate(req.query.time)
+app.post('/library/filter', (req, res) => {
+    var time = getdate(req.body.time)
     user.db.collection('resources').where('time', '>=', time).get().then(snapshot => {
         let data = []
         snapshot.docs.forEach(doc => {
             let chk = false
-            req.query.subject.forEach(sub => {
-                if((!doc.data().is_archive) && (doc.data().subject == sub.label))
-                {
+            req.body.subject.forEach(sub => {
+                if ((!doc.data().is_archive) && (doc.data().subject == sub.label)) {
                     data.push(doc.data())
                     chk = true
                 }
             });
 
-            req.query.grade.forEach(sub => {
-                if((!doc.data().is_archive) && (doc.data().grade == sub.label) && (!chk))
-                {
+            req.body.grade.forEach(sub => {
+                if ((!doc.data().is_archive) && (doc.data().grade == sub.label) && (!chk)) {
                     data.push(doc.data())
                     chk = true
                 }
             });
         });
         res.send({
-                resources: data
+            resources: data
         })
     });
 })
@@ -315,13 +471,13 @@ app.get('/library/myLibrary', (req, res) => {
     });
 })
 
-app.get('/library/myLibrary/filter', (req, res) => {
-    var time = getdate(req.query.time)
-    user.db.collection('resources').where('teacher_id', '==', req.query.id).where('time', '>=', time).get().then(snapshot => {
+app.post('/library/myLibrary/filter', (req, res) => {
+    var time = getdate(req.body.time)
+    user.db.collection('resources').where('teacher_id', '==', req.body.id).where('time', '>=', time).get().then(snapshot => {
         let data = []
         snapshot.docs.forEach(doc => {
             let chk = false
-            req.query.subject.forEach(sub => {
+            req.body.subject.forEach(sub => {
                 if((!doc.data().is_archive) && (doc.data().subject == sub.label))
                 {
                     data.push(doc.data())
@@ -329,7 +485,7 @@ app.get('/library/myLibrary/filter', (req, res) => {
                 }
             });
 
-            req.query.grade.forEach(sub => {
+            req.body.grade.forEach(sub => {
                 if((!doc.data().is_archive) && (doc.data().grade == sub.label) && (!chk))
                 {
                     data.push(doc.data())
