@@ -74,19 +74,21 @@ app.post('/signup', (req, res) => {
 app.post('/addAnnouncement', async (req, res) => {
     if((req.body.type.trim() == '') 
         || (req.body.teacher_id.trim() == '') 
-        ||(req.body.title.trim() == '') || (!validator.isLength(req.body.title, min= 1, max= 60))  
+        || (req.body.title.trim() == '') || (!validator.isLength(req.body.title, min= 1, max= 60))  
         || (req.body.marks == undefined) 
         || (req.body.description.trim() == '') || (!validator.isLength(req.body.description, min= 0, max= 1000)) 
+        || (req.body.grade_id.trim() == '') || (req.body.section_id.trim() == '') || (req.body.subject_id.trim() == '')  
         || (req.body.subject.trim() == '') 
         || (req.body.section == []) 
         || (req.body.grade == [])){
             return res.status(404).send({ error: 'Please fill all the fields properly !' })
         }
 
-    ret = await insert.addAnnouncement(req.body.type, req.body.teacher_id, req.body.title, req.body.marks, req.body.description, req.body.attachment, req.body.suggestion, req.body.subject, req.body.section, req.body.grade)
+    ret = await insert.addAnnouncement(req.body.grade_id, req.body.section_id, req.body.subject_id, req.body.type, req.body.teacher_id, req.body.title, req.body.marks, req.body.description, req.body.attachment, req.body.suggestion, req.body.subject, req.body.section, req.body.grade)
 
     req.body.time = ret[0]
     req.body.id = ret[1]
+    req.body.student_id = ret[2]
 
     res.send({
         result: req.body
@@ -107,27 +109,16 @@ app.get('/announcements', (req, res) => {
     });
 })
 
-const my_announcements = (snapshot) => new Promise((resolve, reject) => {
-    let data = []
-    snapshot.docs.forEach(doc => {
-        doc.data().id.get()
-        .then(snap => {
-            console.log(snap.data());
-            resolve(snap.data())
-        })
-    });
-})
 
 app.get('/myAnnouncements', (req, res) => {
     let data = []
     user.db.collection('announcements').where('student_id', 'array-contains', req.query.id).get().then(snapshot => {
-        my_announcements(snapshot)
-        .then(ans => {
-            data.push(ans)
+        snapshot.docs.forEach(doc => {
+            data.push(doc.data())
+        })
 
-            res.send({
-                resources: data
-            })
+        res.send({
+            resources: data
         })
     });
 })
@@ -148,20 +139,6 @@ const addingclass = (snapshot, test) => new Promise((resolve, reject) => {
     })
     resolve(test)
 })
-
-// const addingsec = (grade) => new Promise((resolve, reject) => {
-//     grade.forEach(gra => {
-//         var sections_list = gra.sections
-//         gra.sections = []
-//         sections_list.forEach(sec => {
-//             user.db.collection('sections').where('id', '==', sec).get().then(async (secs) => {
-//                 gra.sections = await addingclass(secs, gra.sections)
-//             })
-//         })
-//     })
-//     console.log(grade)
-//     resolve(grade)
-// })
 
 app.get('/json', async (req, res) => {
     var grade = []
@@ -299,52 +276,65 @@ app.get('/json', async (req, res) => {
 
 
 
-
-
-
-
-
-
-
-const p2_announcements = (sid) => new Promise((resolve, reject) => {
-    let data2 = []
-    user.db.collection('announcements').where('student_id', 'array-contains', sid).get().then(snapshot => {
-        my_announcements(snapshot)
-        .then(ans2 => {
-            data2.push(ans2)
-        })
-    })
-})
-
-const p1_announcements = (res) => new Promise((resolve, reject) => {
-    let data1 = []
-    res.data().student_id.forEach(sid => {
-        p2_announcements(sid)
-        .then(ans1 => {
-            data1.push(ans1)
-
-            //data = JSON.stringify(data)
-            res.send({
-                resources: data1
-            })
-        })
-    });
-})
-
-app.get('/pAnnouncements', (req, res) => {
+app.get('/broadcastAnnouncement', (req, res) => {
+    let gdata = []
+    let sdata = []
     let data = []
-    user.db.collection('users').doc(req.query.id).get().then(res => {
-        p1_announcements(res)
-        .then(ans => {
-            data.push(ans)
+    await user.db.collection('announcements').doc(req.query.id).get().then(snapshot => {
+        gdata = snapshot.data().grade_id        
+        sdata = snapshot.data().section_id        
+    })
 
-            //data = JSON.stringify(data)
-            res.send({
-                resources: data
-            })
-        })
+    // await gdata.map(s => {
+    //     user.db.collection('grades').doc(s).get().then(snapshot => {
+    //         return data.push(snapshot.data())
+    //     })    
+    // })
+
+    await sdata.map(s => {
+        user.db.collection('sections').doc(s).get().then(snapshot => {
+            return data.push(snapshot.data())
+        })    
+    })
+
+    res.send({
+        resources: data
     })
 })
+
+
+
+
+
+
+
+
+app.get('/pAnnouncements', async (req, res) => {
+    let sdata = []
+    let data = []
+    await user.db.collection('users').doc(req.query.id).get().then(snapshot => {
+        sdata = snapshot.data().student_id        
+    })
+
+    await sdata.map(s => {
+        user.db.collection('announcements').where('student_id', 'array-contains', s).get().then(snapshot => {
+            snapshot.docs.forEach(doc => {  // try "map" instead of "forEach"
+                return data.push(doc.data())
+            })
+        })    
+    })
+
+    res.send({
+        resources: data
+    })
+})
+
+
+
+
+
+
+
 
 app.post('/addResource', async (req, res) => {
     if((req.body.title.trim() == '') || (!validator.isLength(req.body.title, min= 1, max= 60))  

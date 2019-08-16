@@ -6,9 +6,13 @@ const user = require('../models/user.js')
 var validator = require('validator');
 let admin = require('firebase-admin');
     
-const addAnnouncement = (type ,teacher_id , title, marks, description, attachment, suggestion=[], subject, section=[], grade=[]) => {
+const addAnnouncement = (grade_id=[], section_id=[], subject_id, type ,teacher_id , title, marks, description, attachment, suggestion=[], subject, section=[], grade=[]) => {
     return new Promise((resolve, reject) => {
         let ret = []
+        var student_id = []
+        user.db.collection('subjects').doc(subject_id).get().then(snapshot => {
+            student_id = snapshot.data().student_id
+        })
         var today = new Date();
         var dd = String(today.getDate()).padStart(2, '0');
         var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
@@ -19,6 +23,10 @@ const addAnnouncement = (type ,teacher_id , title, marks, description, attachmen
 
         try{
             user.db.collection('announcements').add({
+                grade_id,
+                section_id,
+                subject_id,
+                student_id,
                 type, 
                 teacher_id,
                 title, 
@@ -43,7 +51,7 @@ const addAnnouncement = (type ,teacher_id , title, marks, description, attachmen
                           user.db.collection('announcements').doc(doc.id).set({attachment: apiResponse.mediaLink}, {merge: true});
                       });
                     }
-                    ret.push(time, doc.id)
+                    ret.push(time, doc.id, student_id)
                     user.db.collection('announcements').doc(doc.id).set({id: doc.id}, {merge: true})
                     .then(() => resolve(ret))
                     .catch((e)=>console.log(e))
