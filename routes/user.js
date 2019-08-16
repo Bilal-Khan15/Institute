@@ -2,12 +2,14 @@ const express = require('express')
 const bodyParser = require('body-parser')
 var cors = require('cors')
 const user = require('../models/user.js')
-var validator = require('validator');
 const fs = require('fs')
+var validator = require('validator');
+var multipart = require('connect-multiparty');
 
 const app = express()
 app.use(bodyParser.urlencoded({ extended: true }))
-app.use(cors())
+app.use(cors())   
+var multipartMiddleware = multipart();
 
 let router = express.Router(),
     constants = require('../utils/constant'),
@@ -26,10 +28,8 @@ app.post('/signup', (req, res) => {
             || (req.body.phone.trim() == '') || (!validator.isNumeric(req.body.phone)) || (!validator.isLength(req.body.phone, min = 10, max = 15))
             || (req.body.email.trim() == '') || (!validator.isEmail(req.body.email)) || (!validator.isLength(req.body.email, min = 5, max = 320))
             || (req.body.date.trim() == '') || (req.body.month.trim() == '') || (req.body.year.trim() == '')) {
-            return res.send({
-                result: 'Please fill all the fields properly !'
-            })
-        }
+                return res.status(404).send({ error: 'Please fill all the fields properly !' })
+            }
         insert.signupParent(req.body.type, req.body.name, req.body.nic, req.body.address, req.body.phone, req.body.email, req.body.date, req.body.month, req.body.year, req.body.id)
         res.send({
             result: req.body.name + ' has been addressed as ' + req.body.type
@@ -43,10 +43,8 @@ app.post('/signup', (req, res) => {
             || (req.body.phone.trim() == '') || (!validator.isNumeric(req.body.phone)) || (!validator.isLength(req.body.phone, min = 10, max = 15))
             || (req.body.email.trim() == '') || (!validator.isEmail(req.body.email)) || (!validator.isLength(req.body.email, min = 5, max = 320))
             || (req.body.qualification.trim() == '') || (req.body.date.trim() == '') || (req.body.month.trim() == '') || (req.body.year.trim() == '')) {
-            return res.send({
-                result: 'Please fill all the fields properly !'
-            })
-        }
+                return res.status(404).send({ error: 'Please fill all the fields properly !' })
+            }
         insert.signupTeacher(req.body.type, req.body.name, req.body.nic, req.body.address, req.body.phone, req.body.email, req.body.date, req.body.month, req.body.year, req.body.id, req.body.qualification)
         res.send({
             result: req.body.name + ' has been addressed as ' + req.body.type
@@ -64,9 +62,7 @@ app.post('/signup', (req, res) => {
             || (req.body.guardian_nic.trim() == '') || (!validator.isLength(req.body.guardian_nic, min = 13, max = 16)) || (!validator.isNumeric(req.body.guardian_nic))
             || (req.body.date.trim() == '') || (req.body.month.trim() == '') || (req.body.year.trim() == '')
             || (req.body.student_email.trim() == '') || (!validator.isEmail(req.body.student_email)) || (!validator.isLength(req.body.student_email, min = 5, max = 320))) {
-            return res.send({
-                result: 'Please fill all the fields properly !'
-            })
+            return res.status(404).send({ error: 'Please fill all the fields properly !' })
         }
         insert.signupStudent(req.body.type, req.body.name, req.body.guardian_name, req.body.guardian_phone, req.body.student_phone, req.body.school, req.body.address, req.body.guardian_email, req.body.guardian_nic, req.body.date, req.body.month, req.body.year, req.body.student_email, req.body.id)
         res.send({
@@ -75,17 +71,290 @@ app.post('/signup', (req, res) => {
     }
 })
 
-app.post('/addResource', async (req, res) => {
-    if ((req.body.title.trim() == '') || (!validator.isLength(req.body.title, min = 1, max = 60))
-        || (req.body.description.trim() == '') || (!validator.isLength(req.body.description, min = 1, max = 1000))
-        || (req.body.grade.trim() == '')
-        || (req.body.subject.trim() == '')
-        || (req.body.teacher_id.trim() == '')
-        || (req.body.author.trim() == '') || (!validator.isLength(req.body.author, min = 2, max = 1000))) {
-        return res.send({
-            result: 'Please fill all the fields properly !'
+app.post('/addAnnouncement', async (req, res) => {
+    if((req.body.type.trim() == '') 
+        || (req.body.teacher_id.trim() == '') 
+        ||(req.body.title.trim() == '') || (!validator.isLength(req.body.title, min= 1, max= 60))  
+        || (req.body.marks == undefined) 
+        || (req.body.description.trim() == '') || (!validator.isLength(req.body.description, min= 0, max= 1000)) 
+        || (req.body.subject.trim() == '') 
+        || (req.body.section == []) 
+        || (req.body.grade == [])){
+            return res.status(404).send({ error: 'Please fill all the fields properly !' })
+        }
+
+    ret = await insert.addAnnouncement(req.body.type, req.body.teacher_id, req.body.title, req.body.marks, req.body.description, req.body.attachment, req.body.suggestion, req.body.subject, req.body.section, req.body.grade)
+
+    req.body.time = ret[0]
+    req.body.id = ret[1]
+
+    res.send({
+        result: req.body
+    })
+})
+
+app.get('/announcements', (req, res) => {
+    user.db.collection('announcements').get().then(snapshot => {
+        let data = []
+        snapshot.docs.forEach(doc => {
+            data.push(doc.data());
+        });
+
+        //data = JSON.stringify(data)
+        res.send({
+            resources: data
         })
-    }
+    });
+})
+
+const my_announcements = (snapshot) => new Promise((resolve, reject) => {
+    let data = []
+    snapshot.docs.forEach(doc => {
+        doc.data().id.get()
+        .then(snap => {
+            console.log(snap.data());
+            resolve(snap.data())
+        })
+    });
+})
+
+app.get('/myAnnouncements', (req, res) => {
+    let data = []
+    user.db.collection('announcements').where('student_id', 'array-contains', req.query.id).get().then(snapshot => {
+        my_announcements(snapshot)
+        .then(ans => {
+            data.push(ans)
+
+            res.send({
+                resources: data
+            })
+        })
+    });
+})
+
+
+
+
+
+
+
+
+
+
+const addingclass = (snapshot, test) => new Promise((resolve, reject) => {
+    test = []
+    snapshot.docs.forEach(doc => {
+        test.push(doc.data())
+    })
+    resolve(test)
+})
+
+// const addingsec = (grade) => new Promise((resolve, reject) => {
+//     grade.forEach(gra => {
+//         var sections_list = gra.sections
+//         gra.sections = []
+//         sections_list.forEach(sec => {
+//             user.db.collection('sections').where('id', '==', sec).get().then(async (secs) => {
+//                 gra.sections = await addingclass(secs, gra.sections)
+//             })
+//         })
+//     })
+//     console.log(grade)
+//     resolve(grade)
+// })
+
+app.get('/json', async (req, res) => {
+    var grade = []
+    var sec = []
+    var subj = []
+    await user.db.collection('grades').get().then(async (classes) => {
+        grade = await addingclass(classes, grade)
+    })
+
+    await user.db.collection('sections').get().then(async (sections) => {
+        sec = await addingclass(sections, sec)
+    })
+
+    await user.db.collection('subjects').get().then(async (subjs) => {
+        subj = await addingclass(subjs, subj)
+    })
+
+    await sec.map(g => {
+        var subjects_list = g.subjects
+        g.subjects = []
+        subj.map(s => {
+            subjects_list.map(temp => {
+                if(temp == s.id)
+                {
+                    return g.subjects.push(s)
+                }
+            })
+        })
+    })
+
+    await grade.map(g => {
+        var sections_list = g.sections
+        g.sections = []
+        sec.map(s => {
+            sections_list.map(temp => {
+                if(temp == s.id)
+                {
+                    return g.sections.push(s)
+                }
+            })
+        })
+    })
+
+    // grade = await JSON.stringify(grade)
+    res.send(grade)
+})
+
+
+
+
+
+
+
+
+
+// app.get('/broadcastAnnouncement', (req, res) => {
+//     var data = [];
+        
+//     user.db.collection('announcement_details').doc(req.query.id).get().then(snapshot => {
+//         snapshot.data().grade.forEach(g => {
+//             snapshot.data().section.forEach(s => {
+//                 user.db.collection('grades').where('grade', '==', g).where('section', '==', s).where('subject', '==', snapshot.data().subject).get().then(doc => {
+//                     if(doc.docs){
+//                         data.push(doc.docs[0].data().grade) 
+//                         console.log(doc.docs[0].data().grade) 
+//                     }
+//                 }).catch(err => console.log('error'));
+//             })
+//         })
+
+//         console.log(data)
+//         // data = JSON.stringify(data)
+//         res.send({
+//             resources: data
+//         })
+//     })
+// })
+
+
+
+
+
+
+
+
+
+
+
+// var goo = '12'
+// var soo = 'A'
+// var subjoo = 'Computer'
+
+// var broadcast = (g, s, subj) => new Promise((resolve, reject) => {
+//     user.db.collection('grades').where('grade', '==', g).where('section', '==', s).where('subject', '==', subj).get().then(doc => {
+//         if(doc.docs){
+//             resolve(doc.docs[0].data()) 
+//         }
+//     }).catch(err => console.log('error'));
+// })
+
+// app.get('/broadcastAnnouncement', (req, res) => {
+//     var data = [];
+//     var ans = [];
+//     var itemArray1 = [1, 2, 3, 4, 5];
+//     var itemArray2 = ['a', 'b', 'c', 'd', 'e'];
+    
+    
+//     // user.db.collection('announcement_details').doc(req.query.id).get().then(snapshot => {
+//         // classes = snapshot.data().grade
+//         // sec = snapshot.data().section
+//         subj = 'Computer'
+//         itemArray1.forEach(g => {
+//             itemArray2.forEach(s => {
+//                 data.push(broadcast(goo, soo, subjoo));
+//             })
+//         })
+//     // })
+ 
+//     Promise.all(data)
+//     .then(results => {
+//         console.log('final' + results);
+    
+//         // data = JSON.stringify(data)
+//         res.send({
+//             resources: results
+//         })
+//     })
+//     .catch(err => {
+//         console.error(err.message);
+//     })    
+// })
+
+
+
+
+
+
+
+
+
+
+
+
+
+const p2_announcements = (sid) => new Promise((resolve, reject) => {
+    let data2 = []
+    user.db.collection('announcements').where('student_id', 'array-contains', sid).get().then(snapshot => {
+        my_announcements(snapshot)
+        .then(ans2 => {
+            data2.push(ans2)
+        })
+    })
+})
+
+const p1_announcements = (res) => new Promise((resolve, reject) => {
+    let data1 = []
+    res.data().student_id.forEach(sid => {
+        p2_announcements(sid)
+        .then(ans1 => {
+            data1.push(ans1)
+
+            //data = JSON.stringify(data)
+            res.send({
+                resources: data1
+            })
+        })
+    });
+})
+
+app.get('/pAnnouncements', (req, res) => {
+    let data = []
+    user.db.collection('users').doc(req.query.id).get().then(res => {
+        p1_announcements(res)
+        .then(ans => {
+            data.push(ans)
+
+            //data = JSON.stringify(data)
+            res.send({
+                resources: data
+            })
+        })
+    })
+})
+
+app.post('/addResource', async (req, res) => {
+    if((req.body.title.trim() == '') || (!validator.isLength(req.body.title, min= 1, max= 60))  
+        || (req.body.description.trim() == '') || (!validator.isLength(req.body.description, min= 0, max= 1000)) 
+        || (req.body.grade.trim() == '') 
+        || (req.body.subject.trim() == '') 
+        || (req.body.teacher_id.trim() == '') 
+        || (req.body.author.trim() == '') || (!validator.isLength(req.body.author, min= 2, max= undefined))){
+            return res.status(404).send({ error: 'Please fill all the fields properly !' })
+        }
 
     // ret = await insert.addResource(req.body.title, req.body.description, req.body.grade, req.body.subject, req.body.teacher_id, req.body.author, req.body.file, req.body.video_url, req.body.tags)
 
@@ -102,6 +371,10 @@ app.post('/addResource', async (req, res) => {
     // console.log(notes)
     console.log('buffer ==> ' + dataBuffer)
 
+
+    req.body.time = ret[0]
+    req.body.is_archive = ret[1]
+    req.body.id = ret[2]
 
     res.send({
         result: req.body
@@ -143,6 +416,11 @@ app.post('/updateResource', (req, res) => {
         }
         if (req.body.file) {
             data.file = req.body.file
+            data.video_url = ''
+        }
+        else if (req.body.video_url) {
+            data.video_url = req.body.video_url
+            data.file = ''
         }
         if (req.body.author) {
             data.author = req.body.author
@@ -152,9 +430,6 @@ app.post('/updateResource', (req, res) => {
         }
         if (req.body.is_archive) {
             data.is_archive = req.body.is_archive
-        }
-        if (req.body.video_url) {
-            data.video_url = req.body.video_url
         }
 
         user.db.collection('resources').doc(req.body.id).set(data)
@@ -181,25 +456,45 @@ app.get('/library', (req, res) => {
     });
 })
 
-app.get('/library/filter', (req, res) => {
-    var path = ''
-    if ((req.query.grade) && (req.query.subject)) {
-        path = user.db.collection('resources').where('grade', '==', req.query.grade).where('subject', '==', req.query.subject)
-    } else if ((req.query.grade) && (!req.query.subject)) {
-        path = user.db.collection('resources').where('grade', '==', req.query.grade)
-    } else if ((!req.query.grade) && (req.query.subject)) {
-        path = user.db.collection('resources').where('subject', '==', req.query.subject)
-    }
+function getdate(day)
+{
+    if(day == 'yesterday') { diffDays = 1 } 
+    else if(day == 'last_week') { diffDays = 7 } 
+    else if(day == 'last_month') { diffDays = 31 } 
+    else if(day == 'most_recent') { return 0 }
 
-    path.get().then(snapshot => {
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = today.getFullYear();
+    currentTime = mm + '/' + dd + '/' + yyyy;
+    const date2 = new Date(currentTime);
+
+    const diffTime = diffDays * (1000 * 60 * 60 * 24);
+    date1 = Math.abs(date2.getTime() - diffTime)
+    return date1 
+}
+
+app.post('/library/filter', (req, res) => {
+    var time = getdate(req.body.time)
+    user.db.collection('resources').where('time', '>=', time).get().then(snapshot => {
         let data = []
         snapshot.docs.forEach(doc => {
-            if (!doc.data().is_archive) {
-                data.push(doc.data());
-            }
-        });
+            let chk = false
+            req.body.subject.forEach(sub => {
+                if ((!doc.data().is_archive) && (doc.data().subject == sub.label)) {
+                    data.push(doc.data())
+                    chk = true
+                }
+            });
 
-        //data = JSON.stringify(data)
+            req.body.grade.forEach(sub => {
+                if ((!doc.data().is_archive) && (doc.data().grade == sub.label) && (!chk)) {
+                    data.push(doc.data())
+                    chk = true
+                }
+            });
+        });
         res.send({
             resources: data
         })
@@ -222,27 +517,30 @@ app.get('/library/myLibrary', (req, res) => {
     });
 })
 
-app.get('/library/myLibrary/filter', (req, res) => {
-    var path = ''
-    if ((req.query.grade) && (req.query.subject)) {
-        path = user.db.collection('resources').where('grade', '==', req.query.grade).where('subject', '==', req.query.subject)
-    } else if ((req.query.grade) && (!req.query.subject)) {
-        path = user.db.collection('resources').where('grade', '==', req.query.grade)
-    } else if ((!req.query.grade) && (req.query.subject)) {
-        path = user.db.collection('resources').where('subject', '==', req.query.subject)
-    }
-
-    path.where('teacher_id', '==', req.query.id).get().then(snapshot => {
+app.post('/library/myLibrary/filter', (req, res) => {
+    var time = getdate(req.body.time)
+    user.db.collection('resources').where('teacher_id', '==', req.body.id).where('time', '>=', time).get().then(snapshot => {
         let data = []
         snapshot.docs.forEach(doc => {
-            if (!doc.data().is_archive) {
-                data.push(doc.data());
-            }
-        });
+            let chk = false
+            req.body.subject.forEach(sub => {
+                if((!doc.data().is_archive) && (doc.data().subject == sub.label))
+                {
+                    data.push(doc.data())
+                    chk = true
+                }
+            });
 
-        //data = JSON.stringify(data)
+            req.body.grade.forEach(sub => {
+                if((!doc.data().is_archive) && (doc.data().grade == sub.label) && (!chk))
+                {
+                    data.push(doc.data())
+                    chk = true
+                }
+            });
+        });
         res.send({
-            resources: data
+                resources: data
         })
     });
 })
@@ -298,20 +596,33 @@ app.post('/views', (req, res) => {
 app.post('/helpful', (req, res) => {
     user.db.collection('resources').doc(req.body.id).get().then((res) => {
         let data = res.data()
+        let chk = false
 
-        data.helpful += 1
+        if(data.responsers){
+            data.responsers.forEach(id => {
+                if(id == req.body.sid){
+                    chk = true
+                }
+            })
+        }else{
+            data.responsers = []
+        }
 
-        user.db.collection('resources').doc(req.body.id).set(data)
-
-        user.db.collection('users').doc(req.body.sid).get().then((res) => {
-            let sdata = res.data()
-
-            sdata.helpful ? sdata.helpful = [...sdata.helpful, req.body.id] : sdata.helpful = [req.body.id]
-
-            user.db.collection('users').doc(req.body.sid).set(sdata)
-        })
+        if(!chk)
+        {
+            data.helpful += 1
+            data.responsers.push(req.body.sid)
+    
+            user.db.collection('resources').doc(req.body.id).set(data)
+    
+            user.db.collection('users').doc(req.body.sid).get().then((res) => {
+                let sdata = res.data()
+                sdata.helpful ? sdata.helpful = [...sdata.helpful, req.body.id] : sdata.helpful = [req.body.id]
+                user.db.collection('users').doc(req.body.sid).set(sdata)
+            })
+        }
     })
-
+    
     res.send({
         result: 'Targeted resource has been found helpful.'
     })
@@ -320,20 +631,34 @@ app.post('/helpful', (req, res) => {
 app.post('/nothelpful', (req, res) => {
     user.db.collection('resources').doc(req.body.id).get().then((res) => {
         let data = res.data()
+        let chk = false
 
-        data.nothelpful += 1
+        if(data.responsers){
+            data.responsers.forEach(id => {
+                if(id == req.body.sid){
+                    chk = true
+                }
+            })
+        }else{
+            data.responsers = []
+        }
 
-        user.db.collection('resources').doc(req.body.id).set(data)
+        if(!chk)
+        {
+            data.nothelpful += 1
+            data.responsers.push(req.body.sid)
 
-        user.db.collection('users').doc(req.body.sid).get().then((res) => {
-            let sdata = res.data()
+            user.db.collection('resources').doc(req.body.id).set(data)
 
-            sdata.nothelpful ? sdata.nothelpful = [...sdata.nothelpful, req.body.id] : sdata.nothelpful = [req.body.id]
-
-            user.db.collection('users').doc(req.body.sid).set(sdata)
-        })
+            user.db.collection('users').doc(req.body.sid).get().then((res) => {
+                let sdata = res.data()
+                sdata.nothelpful ? sdata.nothelpful = [...sdata.nothelpful, req.body.id] : sdata.nothelpful = [req.body.id]
+                user.db.collection('users').doc(req.body.sid).set(sdata)
+            })    
+        }
     })
 
+            
     res.send({
         result: 'Targeted resource has not been found helpful.'
     })
@@ -367,9 +692,7 @@ app.post('/signin', async (req, res) => {
             console.log(e)
         }
         if (data == undefined) {
-            return res.send({
-                result: 'Record not found'
-            })
+            return res.status(404).send({ error: 'Record not found' })
         }
         res.send({
             result: data
@@ -384,9 +707,7 @@ app.post('/signin', async (req, res) => {
             console.log(e)
         }
         if (data == undefined) {
-            return res.send({
-                result: 'Record not found'
-            })
+            return res.status(404).send({ error: 'Record not found' })
         }
         res.send({
             result: data
@@ -396,10 +717,10 @@ app.post('/signin', async (req, res) => {
 
 app.get('*', (req, res) => {
     console.log('route not found')
-    res.send({
+    res.status(404).send({
         title: '404',
         name: 'Bilal Khan',
-        errorMessage: 'Page not found.'
+        error: 'Page not found.'
     })
 })
 
