@@ -346,7 +346,21 @@ app.post('/addResource', async (req, res) => {
             return res.status(404).send({ error: 'Please fill all the fields properly !' })
         }
 
-    ret = await insert.addResource(req.body.title, req.body.description, req.body.grade, req.body.subject, req.body.teacher_id, req.body.author, req.body.file, req.body.video_url, req.body.tags)
+    // ret = await insert.addResource(req.body.title, req.body.description, req.body.grade, req.body.subject, req.body.teacher_id, req.body.author, req.body.file, req.body.video_url, req.body.tags)
+
+    // req.body.time = ret[0]
+    // req.body.is_archive = ret[1]
+    // req.body.id = ret[2]
+
+    console.log('backend')
+    const dataBuffer = fs.readFileSync(req.body.file, function (err, data) {
+        //console.log('data ==> ' + data)
+    })
+    // const dataJSON = dataBuffer.toString()
+    // const notes = JSON.parse(dataJSON)
+    // console.log(notes)
+    console.log('buffer ==> ' + dataBuffer)
+
 
     req.body.time = ret[0]
     req.body.is_archive = ret[1]
