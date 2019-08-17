@@ -110,19 +110,6 @@ app.get('/announcements', (req, res) => {
 })
 
 
-app.get('/myAnnouncements', (req, res) => {
-    let data = []
-    user.db.collection('announcements').where('student_id', 'array-contains', req.query.id).get().then(snapshot => {
-        snapshot.docs.forEach(doc => {
-            data.push(doc.data())
-        })
-
-        res.send({
-            resources: data
-        })
-    });
-})
-
 
 
 
@@ -233,7 +220,7 @@ app.get('/json', async (req, res) => {
 
 
 
-app.get('/broadcastAnnouncement', (req, res) => {
+app.get('/broadcastAnnouncement', async (req, res) => {
     let gdata = []
     let sdata = []
     let data = []
@@ -265,26 +252,48 @@ app.get('/broadcastAnnouncement', (req, res) => {
 
 
 
+app.get('/myAnnouncements', (req, res) => {
+    let data = []
+    user.db.collection('announcements').where('student_id', 'array-contains', req.query.id).get().then(snapshot => {
+        snapshot.docs.forEach(doc => {
+            data.push(doc.data())
+        })
+
+        res.send({
+            resources: data
+        })
+    });
+})
 
 app.get('/pAnnouncements', async (req, res) => {
     let sdata = []
+    let announc = []
     let data = []
     await user.db.collection('users').doc(req.query.id).get().then(snapshot => {
         sdata = snapshot.data().student_id        
     })
 
+    await user.db.collection('announcements').get().then((snapshot) => {
+        snapshot.docs.forEach(doc => {
+            announc.push(doc.data())
+        })
+    })    
+
     await sdata.map(s => {
-        user.db.collection('announcements').where('student_id', 'array-contains', s).get().then(snapshot => {
-            snapshot.docs.forEach(doc => {  // try "map" instead of "forEach"
-                return data.push(doc.data())
+        announc.map(a => {
+            a.student_id.find(d => {
+                if(d == s){
+                    data.push(a)
+                }
             })
-        })    
+        })
     })
 
     res.send({
         resources: data
     })
 })
+
 
 
 
