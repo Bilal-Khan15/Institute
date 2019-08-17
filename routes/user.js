@@ -227,49 +227,6 @@ app.get('/json', async (req, res) => {
 
 
 
-// var goo = '12'
-// var soo = 'A'
-// var subjoo = 'Computer'
-
-// var broadcast = (g, s, subj) => new Promise((resolve, reject) => {
-//     user.db.collection('grades').where('grade', '==', g).where('section', '==', s).where('subject', '==', subj).get().then(doc => {
-//         if(doc.docs){
-//             resolve(doc.docs[0].data()) 
-//         }
-//     }).catch(err => console.log('error'));
-// })
-
-// app.get('/broadcastAnnouncement', (req, res) => {
-//     var data = [];
-//     var ans = [];
-//     var itemArray1 = [1, 2, 3, 4, 5];
-//     var itemArray2 = ['a', 'b', 'c', 'd', 'e'];
-    
-    
-//     // user.db.collection('announcement_details').doc(req.query.id).get().then(snapshot => {
-//         // classes = snapshot.data().grade
-//         // sec = snapshot.data().section
-//         subj = 'Computer'
-//         itemArray1.forEach(g => {
-//             itemArray2.forEach(s => {
-//                 data.push(broadcast(goo, soo, subjoo));
-//             })
-//         })
-//     // })
- 
-//     Promise.all(data)
-//     .then(results => {
-//         console.log('final' + results);
-    
-//         // data = JSON.stringify(data)
-//         res.send({
-//             resources: results
-//         })
-//     })
-//     .catch(err => {
-//         console.error(err.message);
-//     })    
-// })
 
 
 
