@@ -8,6 +8,7 @@ var multipart = require('connect-multiparty');
 
 const app = express()
 app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json())
 app.use(cors())   
 var multipartMiddleware = multipart();
 
@@ -312,20 +313,20 @@ app.post('/addResource', async (req, res) => {
             return res.status(404).send({ error: 'Please fill all the fields properly !' })
         }
 
-    // ret = await insert.addResource(req.body.title, req.body.description, req.body.grade, req.body.subject, req.body.teacher_id, req.body.author, req.body.file, req.body.video_url, req.body.tags)
+    ret = await insert.addResource(req.body.title, req.body.description, req.body.grade, req.body.subject, req.body.teacher_id, req.body.author, req.body.file, req.body.video_url, req.body.tags)
 
     // req.body.time = ret[0]
     // req.body.is_archive = ret[1]
     // req.body.id = ret[2]
 
-    console.log('backend')
-    const dataBuffer = fs.readFileSync(req.body.file, function (err, data) {
-        //console.log('data ==> ' + data)
-    })
+    // console.log('backend')
+    // const dataBuffer = fs.readFileSync(req.body.file, function (err, data) {
+    //     //console.log('data ==> ' + data)
+    // })
     // const dataJSON = dataBuffer.toString()
     // const notes = JSON.parse(dataJSON)
     // console.log(notes)
-    console.log('buffer ==> ' + dataBuffer)
+    // console.log('buffer ==> ' + dataBuffer)
 
 
     req.body.time = ret[0]
@@ -417,7 +418,7 @@ function getdate(day)
     if(day == 'yesterday') { diffDays = 1 } 
     else if(day == 'last_week') { diffDays = 7 } 
     else if(day == 'last_month') { diffDays = 31 } 
-    else if(day == 'most_recent') { return 0 }
+    else if(day == "most_recent") { return 0 }
 
     var today = new Date();
     var dd = String(today.getDate()).padStart(2, '0');
@@ -432,20 +433,21 @@ function getdate(day)
 }
 
 app.post('/library/filter', (req, res) => {
+    console.log(req.body)
     var time = getdate(req.body.time)
     user.db.collection('resources').where('time', '>=', time).get().then(snapshot => {
         let data = []
         snapshot.docs.forEach(doc => {
             let chk = false
             req.body.subject.forEach(sub => {
-                if ((!doc.data().is_archive) && (doc.data().subject == sub.label)) {
+                if ((!doc.data().is_archive) && (doc.data().subject.toLowerCase() == sub.label.toLowerCase())) {
                     data.push(doc.data())
                     chk = true
                 }
             });
 
             req.body.grade.forEach(sub => {
-                if ((!doc.data().is_archive) && (doc.data().grade == sub.label) && (!chk)) {
+                if ((!doc.data().is_archive) && (doc.data().grade.toLowerCase() == sub.label.toLowerCase()) && (!chk)) {
                     data.push(doc.data())
                     chk = true
                 }
