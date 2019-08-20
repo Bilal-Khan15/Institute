@@ -418,7 +418,7 @@ function getdate(day)
     if(day == 'yesterday') { diffDays = 1 } 
     else if(day == 'last_week') { diffDays = 7 } 
     else if(day == 'last_month') { diffDays = 31 } 
-    else if(day == "most_recent") { return 0 }
+    else { return 0 }
 
     var today = new Date();
     var dd = String(today.getDate()).padStart(2, '0');
@@ -433,26 +433,37 @@ function getdate(day)
 }
 
 app.post('/library/filter', (req, res) => {
-    console.log(req.body)
     var time = getdate(req.body.time)
-    user.db.collection('resources').where('time', '>=', time).get().then(snapshot => {
+    user.db.collection('resources').where('time', '>=', time).get().then(async (snapshot) => {
         let data = []
-        snapshot.docs.forEach(doc => {
+        await snapshot.docs.forEach(doc => {
             let chk = false
-            req.body.subject.forEach(sub => {
-                if ((!doc.data().is_archive) && (doc.data().subject.toLowerCase() == sub.label.toLowerCase())) {
-                    data.push(doc.data())
-                    chk = true
-                }
-            });
+            if(req.body.subject != undefined){
+                req.body.subject.forEach(sub => {
+                    if ((!doc.data().is_archive) && (doc.data().subject.toLowerCase() == sub.label.toLowerCase())) {
+                        data.push(doc.data())
+                        chk = true
+                    }
+                });
+            }
 
-            req.body.grade.forEach(sub => {
-                if ((!doc.data().is_archive) && (doc.data().grade.toLowerCase() == sub.label.toLowerCase()) && (!chk)) {
-                    data.push(doc.data())
-                    chk = true
-                }
-            });
+            if(req.body.grade != undefined){
+                req.body.grade.forEach(sub => {
+                    if ((!doc.data().is_archive) && (doc.data().grade.toLowerCase() == sub.label.toLowerCase()) && (!chk)) {
+                        data.push(doc.data())
+                        chk = true
+                    }
+                });
+            }
         });
+
+        if ((req.body.time != undefined) && (req.body.subject == undefined) && (req.body.subject == undefined))
+        {
+            snapshot.docs.forEach((doc) => {
+                data.push(doc.data())
+            });
+        }
+
         res.send({
             resources: data
         })
@@ -481,22 +492,32 @@ app.post('/library/myLibrary/filter', (req, res) => {
         let data = []
         snapshot.docs.forEach(doc => {
             let chk = false
-            req.body.subject.forEach(sub => {
-                if((!doc.data().is_archive) && (doc.data().subject == sub.label))
-                {
-                    data.push(doc.data())
-                    chk = true
-                }
-            });
+            if(req.body.subject != undefined){
+                req.body.subject.forEach(sub => {
+                    if ((!doc.data().is_archive) && (doc.data().subject.toLowerCase() == sub.label.toLowerCase())) {
+                        data.push(doc.data())
+                        chk = true
+                    }
+                });
+            }
 
-            req.body.grade.forEach(sub => {
-                if((!doc.data().is_archive) && (doc.data().grade == sub.label) && (!chk))
-                {
-                    data.push(doc.data())
-                    chk = true
-                }
-            });
+            if(req.body.grade != undefined){
+                req.body.grade.forEach(sub => {
+                    if ((!doc.data().is_archive) && (doc.data().grade.toLowerCase() == sub.label.toLowerCase()) && (!chk)) {
+                        data.push(doc.data())
+                        chk = true
+                    }
+                });
+            }
         });
+
+        if ((req.body.time != undefined) && (req.body.subject == undefined) && (req.body.subject == undefined))
+        {
+            snapshot.docs.forEach((doc) => {
+                data.push(doc.data())
+            });
+        }
+
         res.send({
                 resources: data
         })
