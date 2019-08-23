@@ -33,7 +33,7 @@ app.post('/signup', (req, res) => {
             }
         insert.signupParent(req.body.type, req.body.name, req.body.nic, req.body.address, req.body.phone, req.body.email, req.body.date, req.body.month, req.body.year, req.body.id)
         res.send({
-            result: req.body.name + ' has been addressed as ' + req.body.type
+            result: req.body
         })
     }
     if (req.body.type == 'teacher') {
@@ -48,7 +48,7 @@ app.post('/signup', (req, res) => {
             }
         insert.signupTeacher(req.body.type, req.body.name, req.body.nic, req.body.address, req.body.phone, req.body.email, req.body.date, req.body.month, req.body.year, req.body.id, req.body.qualification)
         res.send({
-            result: req.body.name + ' has been addressed as ' + req.body.type
+            result: req.body
         })
     }
     if (req.body.type == 'student') {
@@ -67,25 +67,24 @@ app.post('/signup', (req, res) => {
         }
         insert.signupStudent(req.body.type, req.body.name, req.body.guardian_name, req.body.guardian_phone, req.body.student_phone, req.body.school, req.body.address, req.body.guardian_email, req.body.guardian_nic, req.body.date, req.body.month, req.body.year, req.body.student_email, req.body.id)
         res.send({
-            result: req.body.name + ' has been addressed as ' + req.body.type
+            result: req.body
         })
     }
 })
 
 app.post('/addAnnouncement', async (req, res) => {
-    if((req.body.type.trim() == '') 
-        || (req.body.teacher_id.trim() == '') 
+    if((req.body.teacher_id.trim() == '') 
         || (req.body.title.trim() == '') || (!validator.isLength(req.body.title, min= 1, max= 60))  
-        || (req.body.marks == undefined) 
         || (req.body.description.trim() == '') || (!validator.isLength(req.body.description, min= 0, max= 1000)) 
         || (req.body.grade_id.trim() == '') || (req.body.section_id.trim() == '') || (req.body.subject_id.trim() == '')  
+        || (req.body.due_date.trim() == '') 
         || (req.body.subject.trim() == '') 
         || (req.body.section == []) 
         || (req.body.grade == [])){
             return res.status(404).send({ error: 'Please fill all the fields properly !' })
         }
-
-    ret = await insert.addAnnouncement(req.body.grade_id, req.body.section_id, req.body.subject_id, req.body.type, req.body.teacher_id, req.body.title, req.body.marks, req.body.description, req.body.attachment, req.body.suggestion, req.body.subject, req.body.section, req.body.grade)
+        
+    ret = await insert.addAnnouncement(req.body.due_date, req.body.grade_id, req.body.section_id, req.body.subject_id, req.body.teacher_id, req.body.title, req.body.description, req.body.attachment, req.body.suggestion, req.body.subject, req.body.section, req.body.grade)
 
     req.body.time = ret[0]
     req.body.id = ret[1]
@@ -211,8 +210,16 @@ app.get('/json', async (req, res) => {
 
 
 
-
-
+const tclasses = (teach, subj) => {
+    user.db.collection('users').doc(teach).get().then(snapshot => {
+        let data = snapshot.data()
+        console.log(data)
+        data.classes ? data.classes = [...data.classes, subj] : data.classes =[subj]
+        
+        user.db.collection('users').doc(teach).set(data)
+    })
+}
+// tclasses('wb9QYogCoGbSdwwqRm3L2zxKDnC2', 'GQKaZWMba6gaJI8kfSz2')
 
 
 

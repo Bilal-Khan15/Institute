@@ -6,7 +6,7 @@ const user = require('../models/user.js')
 var validator = require('validator');
 let admin = require('firebase-admin');
     
-const addAnnouncement = (grade_id=[], section_id=[], subject_id, type ,teacher_id , title, marks, description, attachment, suggestion=[], subject, section=[], grade=[]) => {
+const addAnnouncement = (due_date, grade_id=[], section_id=[], subject_id ,teacher_id , title, description, attachment, suggestion=[], subject, section=[], grade=[]) => {
     return new Promise((resolve, reject) => {
         let ret = []
         var student_id = []
@@ -23,14 +23,14 @@ const addAnnouncement = (grade_id=[], section_id=[], subject_id, type ,teacher_i
 
         try{
             user.db.collection('announcements').add({
+                due_date,
                 grade_id,
                 section_id,
                 subject_id,
                 student_id,
-                type, 
+                type: 'notices', 
                 teacher_id,
                 title, 
-                marks, 
                 description,
                 time, 
                 attachment, 
