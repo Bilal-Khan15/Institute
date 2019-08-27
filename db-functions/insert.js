@@ -5,6 +5,7 @@ var exports = module.exports = {},
 const user = require('../models/user.js')
 var validator = require('validator');
 let admin = require('firebase-admin');
+const fs = require('fs')
     
 const addAnnouncement = (due_date, grade_id=[], section_id=[], subject_id ,teacher_id , title, description, attachment, suggestion=[], subject, section=[], grade=[]) => {
     return new Promise((resolve, reject) => {
@@ -92,16 +93,26 @@ const addResource = (title,description, grade, subject ,teacher_id, author , fil
             })
             .then((doc)=>{
                 if(video_url == ''){
-                    user.bucket.upload(file.path, {
-                        gzip: true,
-                        // destination: 'Bilal/' + file,
-                        metadata: {
-                          cacheControl: 'public, max-age=31536000',
-                        }
-                      }, function(err, file, apiResponse) {
-                          user.db.collection('resources').doc(doc.id).set({file: apiResponse.mediaLink}, {merge: true});
-                      });
-                    }
+                    fs.readFile(file, function (err, data) {
+                        const filename = file.split('\\').pop().split('/').pop()
+                        const store = './Temp/' + doc.id + filename;
+                        fs.writeFile(store, data,async function (err) {
+                            if (err) throw err;
+                            await user.bucket.upload(store, {
+                                gzip: true,
+                                // destination: 'Bilal/' + file,
+                                metadata: {
+                                  cacheControl: 'public, max-age=31536000',
+                                }
+                              }, function(err, file, apiResponse) {
+                                  user.db.collection('resources').doc(doc.id).set({file: apiResponse.mediaLink}, {merge: true});
+                                  fs.unlink(store, function (err) {
+                                    if (err) throw err;
+                                  }); 
+                                });                        
+                        }); 
+                    })
+                }
                 user.db.collection('resources').doc(doc.id).set({id: doc.id}, {merge: true});
                 ret.push(time, is_archive, doc.id)
                 let ResourceID = doc.id
@@ -183,7 +194,7 @@ const signupTeacher = (type, name, nic, address, phone, email, date, month, year
     }
 }
 
-const signupStudent = (type, name, guardian_name, guardian_phone, student_phone, school, address, guardian_email, guardian_nic, date, month, year, student_email, id) => {
+const signupStudent = (type, name, guardian_name, guardian_phone, student_phone, address, guardian_email, guardian_nic, date, month, year, student_email, id) => {
     try{
         user.db.collection('users').doc(id).set({
             type: 'student',
@@ -191,7 +202,6 @@ const signupStudent = (type, name, guardian_name, guardian_phone, student_phone,
             guardian_name,
             guardian_phone,
             student_phone,
-            school,
             address,
             guardian_email,
             guardian_nic,

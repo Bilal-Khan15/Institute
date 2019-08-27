@@ -2,6 +2,10 @@
   "name": "testing",
   "version": "1.0.0",
   "description": "",
+  "apidoc": {
+    "title": "Custom apiDoc browser title",
+    "url" : "https://api.github.com/v1"
+  },
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

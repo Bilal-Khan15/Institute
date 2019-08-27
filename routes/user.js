@@ -65,7 +65,7 @@ app.post('/signup', (req, res) => {
             || (req.body.student_email.trim() == '') || (!validator.isEmail(req.body.student_email)) || (!validator.isLength(req.body.student_email, min = 5, max = 320))) {
             return res.status(404).send({ error: 'Please fill all the fields properly !' })
         }
-        insert.signupStudent(req.body.type, req.body.name, req.body.guardian_name, req.body.guardian_phone, req.body.student_phone, req.body.school, req.body.address, req.body.guardian_email, req.body.guardian_nic, req.body.date, req.body.month, req.body.year, req.body.student_email, req.body.id)
+        insert.signupStudent(req.body.type, req.body.name, req.body.guardian_name, req.body.guardian_phone, req.body.student_phone, req.body.address, req.body.guardian_email, req.body.guardian_nic, req.body.date, req.body.month, req.body.year, req.body.student_email, req.body.id)
         res.send({
             result: req.body
         })
@@ -181,28 +181,6 @@ app.get('/json', async (req, res) => {
 
 
 
-// app.get('/broadcastAnnouncement', (req, res) => {
-//     var data = [];
-        
-//     user.db.collection('announcement_details').doc(req.query.id).get().then(snapshot => {
-//         snapshot.data().grade.forEach(g => {
-//             snapshot.data().section.forEach(s => {
-//                 user.db.collection('grades').where('grade', '==', g).where('section', '==', s).where('subject', '==', snapshot.data().subject).get().then(doc => {
-//                     if(doc.docs){
-//                         data.push(doc.docs[0].data().grade) 
-//                         console.log(doc.docs[0].data().grade) 
-//                     }
-//                 }).catch(err => console.log('error'));
-//             })
-//         })
-
-//         console.log(data)
-//         // data = JSON.stringify(data)
-//         res.send({
-//             resources: data
-//         })
-//     })
-// })
 
 
 
@@ -302,14 +280,6 @@ app.get('/pAnnouncements', async (req, res) => {
     })
 })
 
-
-
-
-
-
-
-
-
 app.post('/addResource', async (req, res) => {
     if((req.body.title.trim() == '') || (!validator.isLength(req.body.title, min= 1, max= 60))  
         || (req.body.description.trim() == '') || (!validator.isLength(req.body.description, min= 0, max= 1000)) 
@@ -320,29 +290,15 @@ app.post('/addResource', async (req, res) => {
             return res.status(404).send({ error: 'Please fill all the fields properly !' })
         }
 
-    ret = await insert.addResource(req.body.title, req.body.description, req.body.grade, req.body.subject, req.body.teacher_id, req.body.author, req.body.file, req.body.video_url, req.body.tags)
+        ret = await insert.addResource(req.body.title, req.body.description, req.body.grade, req.body.subject, req.body.teacher_id, req.body.author, req.body.file, req.body.video_url, req.body.tags)
 
-    // req.body.time = ret[0]
-    // req.body.is_archive = ret[1]
-    // req.body.id = ret[2]
-
-    // console.log('backend')
-    // const dataBuffer = fs.readFileSync(req.body.file, function (err, data) {
-    //     //console.log('data ==> ' + data)
-    // })
-    // const dataJSON = dataBuffer.toString()
-    // const notes = JSON.parse(dataJSON)
-    // console.log(notes)
-    // console.log('buffer ==> ' + dataBuffer)
-
-
-    req.body.time = ret[0]
-    req.body.is_archive = ret[1]
-    req.body.id = ret[2]
-
-    res.send({
-        result: req.body
-    })
+        req.body.time = ret[0]
+        req.body.is_archive = ret[1]
+        req.body.id = ret[2]
+    
+        res.send({
+            result: req.body
+        })
 })
 
 app.post('/removeResource', (req, res) => {
