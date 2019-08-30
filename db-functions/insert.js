@@ -64,7 +64,7 @@ const addAnnouncement = (due_date, grade_id=[], section_id=[], subject_id ,teach
         }
     })
 }
-    
+
 const addResource = (title,description, grade, subject ,teacher_id, author , file='', video_url='', tags='') => {
     return new Promise((resolve, reject) => {
         let ret = []
@@ -133,6 +133,8 @@ const addResource = (title,description, grade, subject ,teacher_id, author , fil
         }
     })
 }
+    
+addResource('title','description', 'grade', 'subject' ,'teacher_id', 'author' , file='', video_url='', tags='')
 
 const addtag = (subject, grade) => {
     try{

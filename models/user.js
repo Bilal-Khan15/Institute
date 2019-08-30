@@ -3,9 +3,9 @@ var serviceAccount = require("../website-ngo98-firebase-adminsdk-vxw7y-0b58171e6
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://website-ngo98.firebaseio.com",
-    storageBucket: "website-ngo98.appspot.com",
-    projectId: 'website-ngo98'
+    databaseURL: "https://tehreer-3d704.firebaseio.com",
+    storageBucket: "tehreer-3d704.appspot.com",
+    projectId: 'tehreer-3d704'
 });
 
 const db = admin.firestore();
