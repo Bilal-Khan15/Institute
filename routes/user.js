@@ -109,16 +109,6 @@ app.get('/announcements', (req, res) => {
     });
 })
 
-
-
-
-
-
-
-
-
-
-
 const addingclass = (snapshot, test) => new Promise((resolve, reject) => {
     test = []
     snapshot.docs.forEach(doc => {
@@ -173,21 +163,6 @@ app.get('/json', async (req, res) => {
     res.send(grade)
 })
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const tclasses = (teach, subj) => {
     user.db.collection('users').doc(teach).get().then(snapshot => {
         let data = snapshot.data()
@@ -198,13 +173,6 @@ const tclasses = (teach, subj) => {
     })
 }
 // tclasses('wb9QYogCoGbSdwwqRm3L2zxKDnC2', 'GQKaZWMba6gaJI8kfSz2')
-
-
-
-
-
-
-
 
 app.get('/broadcastAnnouncement', async (req, res) => {
     let gdata = []
@@ -231,12 +199,6 @@ app.get('/broadcastAnnouncement', async (req, res) => {
         resources: data
     })
 })
-
-
-
-
-
-
 
 app.get('/myAnnouncements', (req, res) => {
     let data = []
@@ -277,6 +239,22 @@ app.get('/pAnnouncements', async (req, res) => {
 
     res.send({
         resources: data
+    })
+})
+
+app.post('/invite', (req, res) => {
+    insert.invite(req.body.email, req.body.institute_id)
+
+    res.send({
+        result: req.body
+    })
+})
+
+app.post('/open_invite', (req, res) => {
+    insert.open_invite(req.body.id)
+
+    res.send({
+        result: req.body
     })
 })
 

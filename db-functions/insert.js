@@ -6,7 +6,58 @@ const user = require('../models/user.js')
 var validator = require('validator');
 let admin = require('firebase-admin');
 const fs = require('fs')
-    
+const crypto = require('crypto');
+
+const algorithm = 'aes-256-cbc';
+const key = crypto.randomBytes(32);
+const iv = crypto.randomBytes(16);
+
+function encrypt(text) {
+    let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key), iv);
+    let encrypted = cipher.update(text);
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+    return { iv: iv.toString('hex'), encryptedData: encrypted.toString('hex') };
+}
+
+function decrypt(text) {
+    let iv = Buffer.from(text.iv, 'hex');
+    let encryptedText = Buffer.from(text.encryptedData, 'hex');
+    let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key), iv);
+    let decrypted = decipher.update(encryptedText);
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
+    return decrypted.toString();
+}
+
+const open_invite = (id) => {
+    var decrypt = decrypt(id)
+    console.log(decrypt)
+}
+
+const invite = (email, institute_id) => {
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = today.getFullYear();
+    currentTime = mm + '/' + dd + '/' + yyyy;
+    const date = new Date(currentTime);
+    var time = date.getTime()
+    encrypted = encrypt(institute_id + time)
+    var link = 'http://localhost:8000/invites/' + encrypted
+
+    try{
+        user.db.collection('invites').add({
+            email,
+            institute_id,
+            invite_id: encrypted,
+            status: 'invited',
+            link
+        })
+    } catch (e) {
+            console.log(e);
+            throw new Error(e)
+    }
+}
+
 const addAnnouncement = (due_date, grade_id=[], section_id=[], subject_id ,teacher_id , title, description, attachment, suggestion=[], subject, section=[], grade=[]) => {
     return new Promise((resolve, reject) => {
         let ret = []
@@ -134,8 +185,6 @@ const addResource = (title,description, grade, subject ,teacher_id, author , fil
     })
 }
     
-addResource('title','description', 'grade', 'subject' ,'teacher_id', 'author' , file='', video_url='', tags='')
-
 const addtag = (subject, grade) => {
     try{
         if(!subject == ''){
@@ -146,7 +195,7 @@ const addtag = (subject, grade) => {
         if(!grade == ''){
             user.db.collection('tags').doc('resources').update({
                 grade: admin.firestore.FieldValue.arrayUnion(grade)
-            })
+            }) 
         }
     } catch (e) {
         console.log(e);
@@ -225,5 +274,7 @@ module.exports = {
     signupParent: signupParent,
     signupTeacher: signupTeacher,
     signupStudent: signupStudent,
-    addAnnouncement: addAnnouncement
+    addAnnouncement: addAnnouncement,
+    invite: invite,
+    open_invite: open_invite
 }
