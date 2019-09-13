@@ -72,6 +72,55 @@ app.post('/signup', (req, res) => {
     }
 })
 
+app.post('/inst_signup', (req, res) => {
+    if (req.body.type == 'parent') {
+        insert.inst_signupParent(req.body.institute_id, req.body.institute_name, req.body.type, req.body.name, req.body.nic, req.body.address, req.body.phone, req.body.email, req.body.date, req.body.month, req.body.year, req.body.id)
+        res.send({
+            result: req.body
+        })
+    }
+    if (req.body.type == 'teacher') {
+        insert.inst_signupTeacher(req.body.date_of_joining, req.body.institute_id, req.body.institute_name, req.body.type, req.body.name, req.body.nic, req.body.address, req.body.phone, req.body.email, req.body.date, req.body.month, req.body.year, req.body.id, req.body.qualification)
+        res.send({
+            result: req.body
+        })
+    }
+    if (req.body.type == 'student') {
+        insert.inst_signupStudent(req.body.student_nic, req.body.date_of_joining, req.body.institute_id, req.body.institute_name, req.body.type, req.body.name, req.body.guardian_name, req.body.guardian_phone, req.body.student_phone, req.body.address, req.body.guardian_email, req.body.guardian_nic, req.body.date, req.body.month, req.body.year, req.body.student_email, req.body.id)
+        res.send({
+            result: req.body
+        })
+    }
+})
+
+app.get('/inst_students', (req, res) => {
+    user.db.collection('institute_students').get().then(snapshot => {
+        let data = []
+        snapshot.docs.forEach(doc => {
+            data.push(doc.data());
+        });
+
+        //data = JSON.stringify(data)
+        res.send({
+            resources: data
+        })
+    });
+})
+
+app.get('/inst_teachers', (req, res) => {
+    user.db.collection('institute_teachers').get().then(snapshot => {
+        let data = []
+        snapshot.docs.forEach(doc => {
+            data.push(doc.data());
+        });
+
+        //data = JSON.stringify(data)
+        res.send({
+            resources: data
+        })
+    });
+})
+        
 app.post('/addAnnouncement', async (req, res) => {
     if((req.body.teacher_id.trim() == '') 
         || (req.body.title.trim() == '') || (!validator.isLength(req.body.title, min= 1, max= 60))  
@@ -249,6 +298,73 @@ app.post('/invite', (req, res) => {
         result: req.body
     })
 })
+
+// user.db.collection('invites').doc(req.body.id).get().then((res) => {
+//     console.log(res.data().invite_id)
+// })
+
+
+
+
+
+'use strict';
+const nodemailer = require('nodemailer');
+
+let transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false, // upgrade later with STARTTLS
+    auth: {
+      user: "testingtehreer@gmail.com",
+      pass: "tehreer.co"
+    }
+})
+  
+let poolConfig = "smtps://testingtehreer@gmail.com:tehreer.co/?pool=true";
+
+// async..await is not allowed in global scope, must use a wrapper
+async function main() {
+    // Generate test SMTP service account from ethereal.email
+    // Only needed if you don't have a real mail account for testing
+    let testAccount = await nodemailer.createTestAccount();
+
+    // create reusable transporter object using the default SMTP transport
+    // let transporter = nodemailer.createTransport({
+    //     host: 'smtp.ethereal.email',
+    //     port: 587,
+    //     secure: false, // true for 465, false for other ports
+    //     auth: {
+    //         user: 'alden62@ethereal.email', // generated ethereal user
+    //         pass: 'HnPmjJ5wrGThKaZjF6' // generated ethereal password
+    //     }
+    // });
+
+    // send mail with defined transport object
+    let info = await transporter.sendMail({
+        from: "testingtehreer@gmail.com", // sender address
+        to: "honestbilal15@gmail.com", // list of receivers
+        subject: 'Bilal ✔', // Subject line
+        text: 'Hello world?', // plain text body
+        html: '<b>Hello world?</b>' // html body
+    });
+
+    console.log('Message sent: %s', info.messageId);
+    // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+
+    // Preview only available when sending through an Ethereal account
+    console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+    // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+}
+
+main().catch(console.error);
+
+
+
+
+
+
+
+
 
 app.post('/open_invite', (req, res) => {
     insert.open_invite(req.body.id)

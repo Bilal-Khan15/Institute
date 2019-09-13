@@ -51,6 +51,10 @@ const invite = (email, institute_id) => {
             invite_id: encrypted,
             status: 'invited',
             link
+        }).then((doc) => {
+            user.db.collection('institute_students').add({
+                invite_id: encrypted,
+            })
         })
     } catch (e) {
             console.log(e);
@@ -223,9 +227,56 @@ const signupParent = (type, name, nic, address, phone, email, date, month, year,
     }
 }
 
+const inst_signupParent = (inst_id, inst_name, type, name, nic, address, phone, email, date, month, year, id) => {
+    try{
+        user.db.collection('institute_parents').doc(id).set({
+            institute_id: inst_id,
+            institute_name: inst_name,
+            type: 'parent',
+            name,
+            nic,
+            address,
+            phone, 
+            date,
+            month,
+            year,
+            email,
+            id
+        })
+    } catch (e) {
+        console.log(e);
+        throw new Error(e)
+    }
+}
+
 const signupTeacher = (type, name, nic, address, phone, email, date, month, year,id, qualification, resources=[]) => {
     try{
         user.db.collection('users').doc(id).set({
+            type: 'teacher',
+            name,
+            nic,
+            address,
+            phone,
+            email,
+            date,
+            month,
+            year,
+            id,
+            qualification,
+            resources
+        })
+    } catch (e) {
+        console.log(e);
+        throw new Error(e)
+    }
+}
+
+const inst_signupTeacher = (date_of_joining, inst_id, inst_name, type, name, nic, address, phone, email, date, month, year,id, qualification, resources=[]) => {
+    try{
+        user.db.collection('institute_teachers').doc(id).set({
+            date_of_joining,
+            institute_id: inst_id,
+            institute_name: inst_name,
             type: 'teacher',
             name,
             nic,
@@ -267,6 +318,32 @@ const signupStudent = (type, name, guardian_name, guardian_phone, student_phone,
         throw new Error(e)
     }
 }
+const inst_signupStudent = (student_nic, date_of_joining, inst_id, inst_name, type, name, guardian_name, guardian_phone, student_phone, address, guardian_email, guardian_nic, date, month, year, student_email, id) => {
+    try{
+        user.db.collection('institute_students').doc(id).set({
+            date_of_joining,
+            institute_id: inst_id,
+            institute_name: inst_name,
+            type: 'student',
+            name,
+            guardian_name,
+            guardian_phone,
+            student_phone,
+            address,
+            guardian_email,
+            student_nic,
+            guardian_nic,
+            date,
+            month,
+            year,
+            student_email,
+            id
+        })
+    } catch (e) {
+        console.log(e);
+        throw new Error(e)
+    }
+}
 
 module.exports = {
     addResource: addResource,
@@ -274,6 +351,9 @@ module.exports = {
     signupParent: signupParent,
     signupTeacher: signupTeacher,
     signupStudent: signupStudent,
+    inst_signupParent: inst_signupParent,
+    inst_signupTeacher: inst_signupTeacher,
+    inst_signupStudent: inst_signupStudent,
     addAnnouncement: addAnnouncement,
     invite: invite,
     open_invite: open_invite
