@@ -4,14 +4,18 @@ var exports = module.exports = {},
 
 const user = require('../models/user.js')
 
-const signinTeacher = (uid) => {
+const signinTeacher = (nic, pwd) => {
     try{
         return new Promise((resolve,reject)=>{
 
-            user.db.collection('users').doc(uid).get()
+            user.db.collection('teachers').doc(nic).get()
                 .then((res) => {
                     let userData = res.data();
-                    resolve(userData)
+                    if(userData.pwd == pwd){
+                        resolve(userData)
+                    }else{
+                        resolve('Invalid nic or password')
+                    }
                 })
                 .catch((e) => {
                     const mess = e.message
@@ -24,13 +28,17 @@ const signinTeacher = (uid) => {
     }
 }
 
-signinStudent = (uid) => {
+signinStudent = (nic, pwd) => {
     return new Promise((resolve, reject) => {
-        user.db.collection('users').doc(uid).get()
+        user.db.collection('students').doc(nic).get()
             .then((res) => {
                 let userData = res.data();
-                resolve(userData)
-            })
+                if(userData.pwd == pwd){
+                    resolve(userData)
+                }else{
+                    resolve('Invalid nic or password')
+                }
+        })
             .catch((e) => {
                 const mess = e.message
                 reject({ message: mess })
@@ -38,13 +46,17 @@ signinStudent = (uid) => {
     })
 }
 
-signinParent = (uid) => {
+signinParent = (nic, pwd) => {
     return new Promise((resolve, reject) => {
-        user.db.collection('users').doc(uid).get()
+        user.db.collection('parents').doc(nic).get()
             .then((res) => {
                 let userData = res.data();
-                resolve(userData)
-            })
+                if(userData.pwd == pwd){
+                    resolve(userData)
+                }else{
+                    resolve('Invalid nic or password')
+                }
+        })
             .catch((e) => {
                 const mess = e.message
                 reject({ message: mess })

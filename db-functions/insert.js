@@ -124,14 +124,14 @@ const open_invite = (iv, encryptedData) => {
 })
 }
 
-user.db.collection('users').add({ email: 'sdfdsf', pwd:'dsfdsf', invite_id:'sdfdsfsd'}).then((doc) => {
-    user.db.collection('institute_students').where('invite_id', '==', 'y24jlEkYbIcileYRX4BF1568663322625').get().then(res => {
-        console.log(res.docs[0].data())
-        let data = res.docs[0].data()
-        data.user_id = doc.id
-        user.db.collection('institute_students').doc(data.id).set(data)
-    })
-})
+// user.db.collection('users').add({ email: 'sdfdsf', pwd:'dsfdsf', invite_id:'sdfdsfsd'}).then((doc) => {
+//     user.db.collection('institute_students').where('invite_id', '==', 'y24jlEkYbIcileYRX4BF1568663322625').get().then(res => {
+//         console.log(res.docs[0].data())
+//         let data = res.docs[0].data()
+//         data.user_id = doc.id
+//         user.db.collection('institute_students').doc(data.id).set(data)
+//     })
+// })
 
 
 const save_invite = (email, pwd, iv, encryptedData) => {
@@ -321,9 +321,9 @@ const addtag = (subject, grade) => {
     }
 }
 
-const signupParent = (type, name, nic, address, phone, email, date, month, year, id) => {
+const signupParent = (type, name, nic, address, phone, email, date, month, year, pwd) => {
     try{
-        user.db.collection('users').doc(id).set({
+        user.db.collection('parents').doc(nic).set({
             type: 'parent',
             name,
             nic,
@@ -333,7 +333,7 @@ const signupParent = (type, name, nic, address, phone, email, date, month, year,
             month,
             year,
             email,
-            id
+            pwd
         })
     } catch (e) {
         console.log(e);
@@ -366,9 +366,9 @@ const inst_signupParent = (inst_id, inst_name, type, name, nic, address, phone, 
     }
 }
 
-const signupTeacher = (type, name, nic, address, phone, email, date, month, year,id, qualification, resources=[]) => {
+const signupTeacher = (type, name, nic, address, phone, email, date, month, year, pwd, qualification, resources=[]) => {
     try{
-        user.db.collection('users').doc(id).set({
+        user.db.collection('teachers').doc(nic).set({
             type: 'teacher',
             name,
             nic,
@@ -378,7 +378,7 @@ const signupTeacher = (type, name, nic, address, phone, email, date, month, year
             date,
             month,
             year,
-            id,
+            pwd,
             qualification,
             resources
         })
@@ -416,9 +416,9 @@ const inst_signupTeacher = (date_of_joining, inst_id, inst_name, type, name, nic
     }
 }
 
-const signupStudent = (type, name, guardian_name, guardian_phone, student_phone, address, guardian_email, guardian_nic, date, month, year, student_email, id) => {
+const signupStudent = (type, name, guardian_name, guardian_phone, student_phone, address, guardian_email, guardian_nic, date, month, year, student_email, pwd) => {
     try{
-        user.db.collection('users').doc(id).set({
+        user.db.collection('students').doc(nic).set({
             type: 'student',
             name,
             guardian_name,
@@ -431,7 +431,7 @@ const signupStudent = (type, name, guardian_name, guardian_phone, student_phone,
             month,
             year,
             student_email,
-            id
+            pwd
         })
     } catch (e) {
         console.log(e);

@@ -71,6 +71,7 @@ app.post('/signup', (req, res) => {
     if (req.body.type == 'parent') {
         if ((req.body.type.trim() == '')
             || (req.body.name.trim() == '') || (!validator.isLength(req.body.name, min = 2, max = undefined))
+            || (req.body.pwd.trim() == '') || (!validator.isLength(req.body.pwd, min = 2, max = undefined))
             || (req.body.nic.trim() == '') || (!validator.isLength(req.body.nic, min = 13, max = 16)) || (!validator.isNumeric(req.body.nic))
             || (req.body.address.trim() == '') || (!validator.isLength(req.body.address, min = 5, max = 95))
             || (req.body.phone.trim() == '') || (!validator.isNumeric(req.body.phone)) || (!validator.isLength(req.body.phone, min = 10, max = 15))
@@ -78,7 +79,7 @@ app.post('/signup', (req, res) => {
             || (req.body.date.trim() == '') || (req.body.month.trim() == '') || (req.body.year.trim() == '')) {
                 return res.status(404).send({ error: 'Please fill all the fields properly !' })
             }
-        insert.signupParent(req.body.type, req.body.name, req.body.nic, req.body.address, req.body.phone, req.body.email, req.body.date, req.body.month, req.body.year, req.body.id)
+        insert.signupParent(req.body.type, req.body.name, req.body.nic, req.body.address, req.body.phone, req.body.email, req.body.date, req.body.month, req.body.year, req.body.pwd)
         res.send({
             result: req.body
         })
@@ -86,6 +87,7 @@ app.post('/signup', (req, res) => {
     if (req.body.type == 'teacher') {
         if ((req.body.type.trim() == '')
             || (req.body.name.trim() == '') || (!validator.isLength(req.body.name, min = 2, max = undefined))
+            || (req.body.pwd.trim() == '') || (!validator.isLength(req.body.pwd, min = 2, max = undefined))
             || (req.body.nic.trim() == '') || (!validator.isLength(req.body.nic, min = 13, max = 16)) || (!validator.isNumeric(req.body.nic))
             || (req.body.address.trim() == '') || (!validator.isLength(req.body.address, min = 5, max = 95))
             || (req.body.phone.trim() == '') || (!validator.isNumeric(req.body.phone)) || (!validator.isLength(req.body.phone, min = 10, max = 15))
@@ -93,7 +95,7 @@ app.post('/signup', (req, res) => {
             || (req.body.qualification.trim() == '') || (req.body.date.trim() == '') || (req.body.month.trim() == '') || (req.body.year.trim() == '')) {
                 return res.status(404).send({ error: 'Please fill all the fields properly !' })
             }
-        insert.signupTeacher(req.body.type, req.body.name, req.body.nic, req.body.address, req.body.phone, req.body.email, req.body.date, req.body.month, req.body.year, req.body.id, req.body.qualification)
+        insert.signupTeacher(req.body.type, req.body.name, req.body.nic, req.body.address, req.body.phone, req.body.email, req.body.date, req.body.month, req.body.year, req.body.pwd, req.body.qualification)
         res.send({
             result: req.body
         })
@@ -101,6 +103,7 @@ app.post('/signup', (req, res) => {
     if (req.body.type == 'student') {
         // if ((req.body.type.trim() == '')
         //     || (req.body.name.trim() == '') || (!validator.isLength(req.body.name, min = 2, max = undefined))
+        //     || (req.body.pwd.trim() == '') || (!validator.isLength(req.body.pwd, min = 2, max = undefined))
         //     || (req.body.guardian_name.trim() == '') || (!validator.isLength(req.body.guardian_name, min = 2, max = undefined))
         //     || (req.body.guardian_phone.trim() == '') || (!validator.isNumeric(req.body.guardian_phone)) || (!validator.isLength(req.body.guardian_phone, min = 10, max = 15))
         //     || (req.body.student_phone.trim() == '') || (!validator.isNumeric(req.body.student_phone))
@@ -112,7 +115,7 @@ app.post('/signup', (req, res) => {
         //     || (req.body.student_email.trim() == '') || (!validator.isEmail(req.body.student_email)) || (!validator.isLength(req.body.student_email, min = 5, max = 320))) {
         //     return res.status(404).send({ error: 'Please fill all the fields properly !' })
         // }
-        insert.signupStudent(req.body.type, req.body.name, req.body.guardian_name, req.body.guardian_phone, req.body.student_phone, req.body.address, req.body.guardian_email, req.body.guardian_nic, req.body.date, req.body.month, req.body.year, req.body.student_email, req.body.id)
+        insert.signupStudent(req.body.type, req.body.name, req.body.guardian_name, req.body.guardian_phone, req.body.student_phone, req.body.address, req.body.guardian_email, req.body.guardian_nic, req.body.date, req.body.month, req.body.year, req.body.student_email, req.body.pwd)
         res.send({
             result: req.body
         })
@@ -900,12 +903,12 @@ app.post('/signin', async (req, res) => {
     if (req.body.type == 'teacher') {
         let data;
         try {
-            data = await read.signinTeacher(req.body.id)
+            data = await read.signinTeacher(req.body.nic, req.body.pwd)
         }
         catch (e) {
             console.log(e)
         }
-        if (data == undefined) {
+        if ((data == undefined) || (data == 'Invalid nic or password')) {
             return res.send({
                 result: 'Record not found'
             })
@@ -917,13 +920,13 @@ app.post('/signin', async (req, res) => {
     else if (req.body.type === 'student') {
         let data;
         try {
-            data = await read.signinStudent(req.body.id)
+            data = await read.signinStudent(req.body.nic, req.body.pwd)
             console.log('student data ==>', data)
         }
         catch (e) {
             console.log(e)
         }
-        if (data == undefined) {
+        if ((data == undefined) || (data == 'Invalid nic or password')) {
             return res.status(404).send({ error: 'Record not found' })
         }
         res.send({
@@ -933,12 +936,12 @@ app.post('/signin', async (req, res) => {
     else if (req.body.type === 'parent') {
         let data;
         try {
-            data = await read.signinParent(req.body.id)
+            data = await read.signinParent(req.body.nic, req.body.pwd)
         }
         catch (e) {
             console.log(e)
         }
-        if (data == undefined) {
+        if ((data == undefined) || (data == 'Invalid nic or password')) {
             return res.status(404).send({ error: 'Record not found' })
         }
         res.send({
