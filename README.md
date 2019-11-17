@@ -1,3 +1,0 @@
-# TEHREER
-
-Tehreer Backend
