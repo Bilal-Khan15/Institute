@@ -142,7 +142,7 @@ app.post('/signin', async (req, res) => {
     if (req.body.type == 'teacher') {
         let data;
         try {
-            data = await read.signinTeacher(req.body.nic, req.body.pwd)
+            data = await read.signinTeacher(req.body.id, req.body.pwd)
         }
         catch (e) {
             console.log(e)
@@ -157,7 +157,7 @@ app.post('/signin', async (req, res) => {
     else if (req.body.type === 'student') {
         let data;
         try {
-            data = await read.signinStudent(req.body.nic, req.body.pwd)
+            data = await read.signinStudent(req.body.id, req.body.pwd)
             console.log('student data ==>', data)
         }
         catch (e) {
@@ -173,7 +173,7 @@ app.post('/signin', async (req, res) => {
     else if (req.body.type === 'parent') {
         let data;
         try {
-            data = await read.signinParent(req.body.nic, req.body.pwd)
+            data = await read.signinParent(req.body.id, req.body.pwd)
         }
         catch (e) {
             console.log(e)
@@ -188,7 +188,7 @@ app.post('/signin', async (req, res) => {
     else if (req.body.type === 'admin') {
         let data;
         try {
-            data = await read.signinAdmin(req.body.nic, req.body.pwd)
+            data = await read.signinAdmin(req.body.id, req.body.pwd)
         }
         catch (e) {
             console.log(e)
