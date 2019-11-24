@@ -185,6 +185,21 @@ app.post('/signin', async (req, res) => {
             result: data
         })
     }
+    else if (req.body.type === 'admin') {
+        let data;
+        try {
+            data = await read.signinAdmin(req.body.nic, req.body.pwd)
+        }
+        catch (e) {
+            console.log(e)
+        }
+        if ((data == undefined) || (data == 'Invalid nic or password')) {
+            return res.status(404).send({ error: 'Record not found' })
+        }
+        res.send({
+            result: data
+        })
+    }
 })
 
 /**

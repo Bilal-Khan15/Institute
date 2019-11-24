@@ -4,6 +4,30 @@ var exports = module.exports = {},
 
 const user = require('../models/user.js')
 
+const signinAdmin = (nic, pwd) => {
+    try{
+        return new Promise((resolve,reject)=>{
+
+            user.db.collection('admin').doc(nic).get()
+                .then((res) => {
+                    let userData = res.data();
+                    if(userData.pwd == pwd){
+                        resolve(userData)
+                    }else{
+                        resolve('Invalid nic or password')
+                    }
+                })
+                .catch((e) => {
+                    const mess = e.message
+                    reject({ message: mess })
+                })
+            }) 
+    }  catch (e) {
+        console.log(e);
+        throw new Error(e);
+    }
+}
+
 const signinTeacher = (nic, pwd) => {
     try{
         return new Promise((resolve,reject)=>{
@@ -67,5 +91,6 @@ signinParent = (nic, pwd) => {
 module.exports = {
     signinTeacher: signinTeacher,
     signinStudent: signinStudent,
-    signinParent: signinParent
+    signinParent: signinParent,
+    signinAdmin: signinAdmin
 }
