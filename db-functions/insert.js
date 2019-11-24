@@ -415,7 +415,7 @@ const inst_signupTeacher = (date_of_joining, inst_id, inst_name, type, name, nic
     }
 }
 
-const signupStudent = (name, guardian_name, guardian_phone, student_phone, address, guardian_email, guardian_nic, date, month, year, student_email, pwd) => {
+const signupStudent = (nic, name, guardian_name, guardian_phone, student_phone, address, guardian_email, guardian_nic, date, month, year, student_email, pwd) => {
     try{
         user.db.collection('students').doc(nic).set({
             name,
@@ -429,7 +429,8 @@ const signupStudent = (name, guardian_name, guardian_phone, student_phone, addre
             month,
             year,
             student_email,
-            pwd
+            pwd,
+            nic
         })
     } catch (e) {
         console.log(e);
