@@ -56,14 +56,14 @@ let router = express.Router(),
  * @apiParam {name}
  * @apiParam {guardian_name} 
  * @apiParam {guardian_phone} 
- * @apiParam {student_phone} 
+ * @apiParam {phone} 
  * @apiParam {address} 
  * @apiParam {guardian_email} 
  * @apiParam {guardian_nic} 
  * @apiParam {date} 
  * @apiParam {month} 
  * @apiParam {year} 
- * @apiParam {student_email} 
+ * @apiParam {email} 
  * @apiParam {id} 
  * @apiSuccess {JSON object} 
  */
@@ -106,16 +106,15 @@ app.post('/signup', (req, res) => {
             || (req.body.pwd.trim() == '') || (!validator.isLength(req.body.pwd, min = 2, max = undefined))
             || (req.body.guardian_name.trim() == '') || (!validator.isLength(req.body.guardian_name, min = 2, max = undefined))
             || (req.body.guardian_phone.trim() == '') || (!validator.isNumeric(req.body.guardian_phone)) || (!validator.isLength(req.body.guardian_phone, min = 10, max = 15))
-            || (req.body.student_phone.trim() == '') || (!validator.isNumeric(req.body.student_phone))
-            // || (req.body.school.trim() == '')
+            || (req.body.phone.trim() == '') || (!validator.isNumeric(req.body.phone))
             || (req.body.address.trim() == '') || (!validator.isLength(req.body.address, min = 5, max = 95))
             || (req.body.guardian_email.trim() == '') || (!validator.isEmail(req.body.guardian_email)) || (!validator.isLength(req.body.guardian_email, min = 5, max = 320))
             || (req.body.guardian_nic.trim() == '') || (!validator.isLength(req.body.guardian_nic, min = 13, max = 16)) || (!validator.isNumeric(req.body.guardian_nic))
             || (req.body.date.trim() == '') || (req.body.month.trim() == '') || (req.body.year.trim() == '')
-            || (req.body.student_email.trim() == '') || (!validator.isEmail(req.body.student_email)) || (!validator.isLength(req.body.student_email, min = 5, max = 320))) {
+            || (req.body.email.trim() == '') || (!validator.isEmail(req.body.email)) || (!validator.isLength(req.body.email, min = 5, max = 320))) {
             return res.status(404).send({ error: 'Please fill all the fields properly !' })
         }
-        insert.signupStudent(req.body.name, req.body.guardian_name, req.body.guardian_phone, req.body.student_phone, req.body.address, req.body.guardian_email, req.body.guardian_nic, req.body.date, req.body.month, req.body.year, req.body.student_email, req.body.pwd)
+        insert.signupStudent(req.body.name, req.body.guardian_name, req.body.guardian_phone, req.body.phone, req.body.address, req.body.guardian_email, req.body.guardian_nic, req.body.date, req.body.month, req.body.year, req.body.email, req.body.pwd)
         res.send({
             result: req.body
         })
@@ -1006,14 +1005,14 @@ app.post('/signin', async (req, res) => {
 //  * @apiParam {name}
 //  * @apiParam {guardian_name} 
 //  * @apiParam {guardian_phone} 
-//  * @apiParam {student_phone} 
+//  * @apiParam {phone} 
 //  * @apiParam {address} 
 //  * @apiParam {guardian_email} 
 //  * @apiParam {guardian_nic} 
 //  * @apiParam {date} 
 //  * @apiParam {month} 
 //  * @apiParam {year} 
-//  * @apiParam {student_email} 
+//  * @apiParam {email} 
 //  * @apiParam {id} 
 //  * @apiSuccess {JSON object} 
 //  */
@@ -1031,7 +1030,7 @@ app.post('/signin', async (req, res) => {
 //         })
 //     }
 //     if (req.body.type == 'student') {
-//         insert.inst_signupStudent(req.body.student_nic, req.body.date_of_joining, req.body.institute_id, req.body.institute_name, req.body.type, req.body.name, req.body.guardian_name, req.body.guardian_phone, req.body.student_phone, req.body.address, req.body.guardian_email, req.body.guardian_nic, req.body.date, req.body.month, req.body.year, req.body.student_email, req.body.id)
+//         insert.inst_signupStudent(req.body.student_nic, req.body.date_of_joining, req.body.institute_id, req.body.institute_name, req.body.type, req.body.name, req.body.guardian_name, req.body.guardian_phone, req.body.phone, req.body.address, req.body.guardian_email, req.body.guardian_nic, req.body.date, req.body.month, req.body.year, req.body.email, req.body.id)
 //         res.send({
 //             result: req.body
 //         })
@@ -1092,7 +1091,7 @@ app.post('/signin', async (req, res) => {
 //  * @apiParam {guardian_name} 
 //  * @apiParam {guardian_email} 
 //  * @apiParam {guardian_phone} 
-//  * @apiParam {student_phone} 
+//  * @apiParam {phone} 
 //  * @apiParam {address} 
 //  * @apiParam {guardian_email} 
 //  * @apiParam {student_nic} 
@@ -1100,7 +1099,7 @@ app.post('/signin', async (req, res) => {
 //  * @apiParam {date} 
 //  * @apiParam {month} 
 //  * @apiParam {year} 
-//  * @apiParam {student_email} 
+//  * @apiParam {email} 
 //  * @apiSuccess {String} 
 //  * 
 //  */
@@ -1129,8 +1128,8 @@ app.post('/signin', async (req, res) => {
 //         else if (req.body.guardian_phone) {
 //             data.guardian_phone = req.body.guardian_phone
 //         }
-//         if (req.body.student_phone) {
-//             data.student_phone = req.body.student_phone
+//         if (req.body.phone) {
+//             data.phone = req.body.phone
 //         }
 //         if (req.body.address) {
 //             data.address = req.body.address
@@ -1153,8 +1152,8 @@ app.post('/signin', async (req, res) => {
 //         if (req.body.year) {
 //             data.year = req.body.year
 //         }
-//         if (req.body.student_email) {
-//             data.student_email = req.body.student_email
+//         if (req.body.email) {
+//             data.email = req.body.email
 //         }
 
 //         user.db.collection('institute_students').doc(req.body.id).set(data)
