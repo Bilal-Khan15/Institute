@@ -321,10 +321,9 @@ const addtag = (subject, grade) => {
     }
 }
 
-const signupParent = (type, name, nic, address, phone, email, date, month, year, pwd) => {
+const signupParent = (name, nic, address, phone, email, date, month, year, pwd, student_id=[]) => {
     try{
         user.db.collection('parents').doc(nic).set({
-            type: 'parent',
             name,
             nic,
             address,
@@ -333,7 +332,8 @@ const signupParent = (type, name, nic, address, phone, email, date, month, year,
             month,
             year,
             email,
-            pwd
+            pwd,
+            student_id
         })
     } catch (e) {
         console.log(e);
@@ -366,10 +366,9 @@ const inst_signupParent = (inst_id, inst_name, type, name, nic, address, phone, 
     }
 }
 
-const signupTeacher = (type, name, nic, address, phone, email, date, month, year, pwd, qualification, resources=[]) => {
+const signupTeacher = (name, nic, address, phone, email, date, month, year, pwd, qualification, resources=[]) => {
     try{
         user.db.collection('teachers').doc(nic).set({
-            type: 'teacher',
             name,
             nic,
             address,
@@ -416,10 +415,9 @@ const inst_signupTeacher = (date_of_joining, inst_id, inst_name, type, name, nic
     }
 }
 
-const signupStudent = (type, name, guardian_name, guardian_phone, student_phone, address, guardian_email, guardian_nic, date, month, year, student_email, pwd) => {
+const signupStudent = (name, guardian_name, guardian_phone, student_phone, address, guardian_email, guardian_nic, date, month, year, student_email, pwd) => {
     try{
         user.db.collection('students').doc(nic).set({
-            type: 'student',
             name,
             guardian_name,
             guardian_phone,
