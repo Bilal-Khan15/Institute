@@ -424,4 +424,46 @@ app.post('/remove_inst_teacher', (req, res) => {
     })
 })
 
+app.post('/addInst', (req, res) => {
+    insert.addInst(req.body.fee, req.body.ground, req.body.lib, req.body.loc, req.body.name, req.body.phd)
+    
+    res.send({
+        result: req.body
+    })
+})
+
+app.post('/instDetails/filter', (req, res) => {
+    user.db.collection('institute_details').where('location', '==', req.body.loc).get().then(async (snapshot) => {
+        let data = []
+        let chk = false
+        await snapshot.docs.forEach(doc => {
+            if(((req.body.fee != undefined)&&(doc.data().fee <= req.body.fee))&&
+            ((req.body.ground != undefined)&&(doc.data().ground.toLowerCase() == req.body.ground.toLowerCase()))&&
+            ((req.body.lib != undefined)&&(doc.data().library.toLowerCase() == req.body.lib.toLowerCase()))&&
+            ((req.body.phd != undefined)&&(doc.data().phd >= req.body.phd)))
+            {
+                data.push(doc.data())
+                chk= true
+            }
+        });
+
+        if (chk)
+        {
+            res.send({
+                resources: data
+            })
+        }else{
+            return res.send({ resources: {
+                name: 'Government School',
+                fee: '0',
+                ground: 'false',
+                library: 'false',
+                phd: '0',
+                location: req.body.loc
+            }
+            })
+        }
+    });
+})
+
 module.exports = app;

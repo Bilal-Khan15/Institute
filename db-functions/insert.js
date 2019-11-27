@@ -466,6 +466,24 @@ const inst_signupStudent = (student_nic, date_of_joining, inst_id, inst_name, ty
     }
 }
 
+const addInst = (fee, ground, lib, loc, name, phd) => {
+    try{
+        user.db.collection('institute_details').add({
+            fee,
+            ground,
+            library: lib,
+            location: loc,
+            name,
+            phd
+        }).then((doc) => {
+            user.db.collection('institute_details').doc(doc.id).set({id: doc.id}, {merge: true});
+        })
+    } catch (e) {
+        console.log(e);
+        throw new Error(e)
+    }
+}
+
 module.exports = {
     addResource: addResource,
     addtag: addtag,
@@ -478,5 +496,6 @@ module.exports = {
     addAnnouncement: addAnnouncement,
     invite: invite,
     open_invite: open_invite,
-    save_invite: save_invite
+    save_invite: save_invite,
+    addInst: addInst
 }
